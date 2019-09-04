@@ -299,7 +299,7 @@ Configuration
 	Enable NEON backend        : ${ENABLE_BACKEND_NEON}
 	Enable C64X backend        : ${ENABLE_BACKEND_C64X}
 	Enable MIPS backend        : ${ENABLE_BACKEND_MIPS}
-    Enable MSA backend         : ${ENABLE_BACKEND_MSA}
+	Enable MSA backend         : ${ENABLE_BACKEND_MSA}
 
 	Building test apps         : ${BUILD_TESTS}
 "
