@@ -33,6 +33,7 @@
 #include <orc/orcdebug.h>
 #include <stdlib.h>
 #include <string.h>
+#include <orc/orcmsa.h>
 
 static unsigned int orc_compiler_orc_msa_get_default_flags (void);
 
@@ -358,7 +359,7 @@ orc_msa_emit_var_pref (OrcCompiler *compiler, int iter_offset, int total_shift)
 static int
 uses_register (OrcCompiler *compiler,
                OrcInstruction *insn,
-               OrcMipsRegister reg)
+               OrcMsaRegister reg)
 {
   int i;
   for (i=0; i<ORC_STATIC_OPCODE_N_DEST; i++) {
@@ -388,7 +389,7 @@ do_swap (int *tab, int i, int j)
 static int
 can_raise (OrcCompiler *compiler, int *indexes, int i)
 {
-  OrcMipsRegister reg;
+  OrcMsaRegister reg;
   OrcInstruction *insn, *previous_insn;
 
   if (i==0)
@@ -578,7 +579,7 @@ orc_msa_get_alignment (OrcCompiler *compiler)
 }
 
 static void
-orc_msa_emit_full_loop (OrcCompiler *compiler, OrcMipsRegister counter,
+orc_msa_emit_full_loop (OrcCompiler *compiler, OrcMsaRegister counter,
                          int loop_shift, int loop_label, int alignment, int unroll)
 {
   int saved_loop_shift;

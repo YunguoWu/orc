@@ -145,13 +145,13 @@ orc_msa_emit_nop (OrcCompiler *compiler)
   /* We emit "or $at, $at, $0" aka "move $at, $at" for nop, because that's what
    * gnu as does. */
   orc_msa_emit (compiler,
-      MIPS_BINARY_INSTRUCTION(0,ORC_MIPS_AT, ORC_MIPS_ZERO, ORC_MIPS_AT,
+      MIPS_BINARY_INSTRUCTION(0,ORC_MSA_AT, ORC_MSA_ZERO, ORC_MSA_AT,
                               0, 045));
 }
 
 void
-orc_msa_emit_sw (OrcCompiler *compiler, OrcMipsRegister reg,
-                  OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_sw (OrcCompiler *compiler, OrcMsaRegister reg,
+                  OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  sw      %s, %d(%s)\n",
                 orc_msa_reg_name (reg),
@@ -160,8 +160,8 @@ orc_msa_emit_sw (OrcCompiler *compiler, OrcMipsRegister reg,
 }
 
 void
-orc_msa_emit_swr (OrcCompiler *compiler, OrcMipsRegister reg,
-                   OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_swr (OrcCompiler *compiler, OrcMsaRegister reg,
+                   OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  swr     %s, %d(%s)\n",
                 orc_msa_reg_name (reg),
@@ -170,8 +170,8 @@ orc_msa_emit_swr (OrcCompiler *compiler, OrcMipsRegister reg,
 }
 
 void
-orc_msa_emit_swl (OrcCompiler *compiler, OrcMipsRegister reg,
-                   OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_swl (OrcCompiler *compiler, OrcMsaRegister reg,
+                   OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  swl     %s, %d(%s)\n",
                 orc_msa_reg_name (reg),
@@ -180,8 +180,8 @@ orc_msa_emit_swl (OrcCompiler *compiler, OrcMipsRegister reg,
 }
 
 void
-orc_msa_emit_sh (OrcCompiler *compiler, OrcMipsRegister reg,
-                  OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_sh (OrcCompiler *compiler, OrcMsaRegister reg,
+                  OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  sh      %s, %d(%s)\n",
                 orc_msa_reg_name (reg),
@@ -190,8 +190,8 @@ orc_msa_emit_sh (OrcCompiler *compiler, OrcMipsRegister reg,
 }
 
 void
-orc_msa_emit_sb (OrcCompiler *compiler, OrcMipsRegister reg,
-                  OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_sb (OrcCompiler *compiler, OrcMsaRegister reg,
+                  OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  sb      %s, %d(%s)\n",
                 orc_msa_reg_name (reg),
@@ -200,8 +200,8 @@ orc_msa_emit_sb (OrcCompiler *compiler, OrcMipsRegister reg,
 }
 
 void
-orc_msa_emit_lw (OrcCompiler *compiler, OrcMipsRegister dest,
-                  OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_lw (OrcCompiler *compiler, OrcMsaRegister dest,
+                  OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  lw      %s, %d(%s)\n",
                 orc_msa_reg_name (dest),
@@ -210,8 +210,8 @@ orc_msa_emit_lw (OrcCompiler *compiler, OrcMipsRegister dest,
 }
 
 void
-orc_msa_emit_lwr (OrcCompiler *compiler, OrcMipsRegister dest,
-                   OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_lwr (OrcCompiler *compiler, OrcMsaRegister dest,
+                   OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  lwr     %s, %d(%s)\n",
                 orc_msa_reg_name (dest),
@@ -220,8 +220,8 @@ orc_msa_emit_lwr (OrcCompiler *compiler, OrcMipsRegister dest,
 }
 
 void
-orc_msa_emit_lwl (OrcCompiler *compiler, OrcMipsRegister dest,
-                   OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_lwl (OrcCompiler *compiler, OrcMsaRegister dest,
+                   OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  lwl     %s, %d(%s)\n",
                 orc_msa_reg_name (dest),
@@ -230,8 +230,8 @@ orc_msa_emit_lwl (OrcCompiler *compiler, OrcMipsRegister dest,
 }
 
 void
-orc_msa_emit_lh (OrcCompiler *compiler, OrcMipsRegister dest,
-                  OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_lh (OrcCompiler *compiler, OrcMsaRegister dest,
+                  OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  lh      %s, %d(%s)\n",
                 orc_msa_reg_name (dest),
@@ -240,8 +240,8 @@ orc_msa_emit_lh (OrcCompiler *compiler, OrcMipsRegister dest,
 }
 
 void
-orc_msa_emit_lb (OrcCompiler *compiler, OrcMipsRegister dest,
-                  OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_lb (OrcCompiler *compiler, OrcMsaRegister dest,
+                  OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  lb      %s, %d(%s)\n",
                 orc_msa_reg_name (dest),
@@ -250,8 +250,8 @@ orc_msa_emit_lb (OrcCompiler *compiler, OrcMipsRegister dest,
 }
 
 void
-orc_msa_emit_lbu (OrcCompiler *compiler, OrcMipsRegister dest,
-                   OrcMipsRegister base, unsigned int offset)
+orc_msa_emit_lbu (OrcCompiler *compiler, OrcMsaRegister dest,
+                   OrcMsaRegister base, unsigned int offset)
 {
   ORC_ASM_CODE (compiler, "  lbu     %s, %d(%s)\n",
                 orc_msa_reg_name (dest),
@@ -260,17 +260,17 @@ orc_msa_emit_lbu (OrcCompiler *compiler, OrcMipsRegister dest,
 }
 
 void
-orc_msa_emit_jr (OrcCompiler *compiler, OrcMipsRegister address_reg)
+orc_msa_emit_jr (OrcCompiler *compiler, OrcMsaRegister address_reg)
 {
   ORC_ASM_CODE (compiler, "  jr      %s\n", orc_msa_reg_name (address_reg));
-  orc_msa_emit (compiler, MIPS_IMMEDIATE_INSTRUCTION(0, address_reg, ORC_MIPS_ZERO, 010));
+  orc_msa_emit (compiler, MIPS_IMMEDIATE_INSTRUCTION(0, address_reg, ORC_MSA_ZERO, 010));
 }
 
 void
 orc_msa_emit_conditional_branch (OrcCompiler *compiler,
                                   int condition,
-                                  OrcMipsRegister rs,
-                                  OrcMipsRegister rt,
+                                  OrcMsaRegister rs,
+                                  OrcMsaRegister rt,
                                   unsigned int label)
 {
   int offset;
@@ -281,15 +281,15 @@ orc_msa_emit_conditional_branch (OrcCompiler *compiler,
     "bgtz"
   };
   switch (condition) {
-  case ORC_MIPS_BEQ:
-  case ORC_MIPS_BNE:
+  case ORC_MSA_BEQ:
+  case ORC_MSA_BNE:
     ORC_ASM_CODE (compiler, "  %s    %s, %s, .L%s%d\n", opcode_name[condition],
                   orc_msa_reg_name (rs), orc_msa_reg_name (rt),
                   compiler->program->name, label);
     break;
-  case ORC_MIPS_BLEZ:
-  case ORC_MIPS_BGTZ:
-    ORC_ASSERT (rt == ORC_MIPS_ZERO);
+  case ORC_MSA_BLEZ:
+  case ORC_MSA_BGTZ:
+    ORC_ASSERT (rt == ORC_MSA_ZERO);
     ORC_ASM_CODE (compiler, "  %s    %s, .L%s%d\n", opcode_name[condition],
                   orc_msa_reg_name (rs),
                   compiler->program->name, label);
@@ -309,8 +309,8 @@ orc_msa_emit_conditional_branch (OrcCompiler *compiler,
 void
 orc_msa_emit_conditional_branch_with_offset (OrcCompiler *compiler,
                                               int condition,
-                                              OrcMipsRegister rs,
-                                              OrcMipsRegister rt,
+                                              OrcMsaRegister rs,
+                                              OrcMsaRegister rt,
                                               int offset)
 {
   char *opcode_name[] = { NULL, NULL, NULL, NULL,
@@ -322,16 +322,16 @@ orc_msa_emit_conditional_branch_with_offset (OrcCompiler *compiler,
     "bgez"
   };
   switch (condition) {
-  case ORC_MIPS_BEQ:
-  case ORC_MIPS_BNE:
+  case ORC_MSA_BEQ:
+  case ORC_MSA_BNE:
     ORC_ASM_CODE (compiler, "  %s    %s, %s, %d\n", opcode_name[condition],
                   orc_msa_reg_name (rs), orc_msa_reg_name (rt), offset);
     break;
-  case ORC_MIPS_BLEZ:
-  case ORC_MIPS_BGTZ:
-  case ORC_MIPS_BLTZ:
-  case ORC_MIPS_BGEZ:
-    ORC_ASSERT (rt == ORC_MIPS_ZERO);
+  case ORC_MSA_BLEZ:
+  case ORC_MSA_BGTZ:
+  case ORC_MSA_BLTZ:
+  case ORC_MSA_BGEZ:
+    ORC_ASSERT (rt == ORC_MSA_ZERO);
     ORC_ASM_CODE (compiler, "  %s    %s, %d\n", opcode_name[condition],
                   orc_msa_reg_name (rs), offset);
     break;
@@ -339,9 +339,9 @@ orc_msa_emit_conditional_branch_with_offset (OrcCompiler *compiler,
     ORC_PROGRAM_ERROR (compiler, "unknown branch type: 0x%x", condition);
   }
 
-  if (condition >= ORC_MIPS_BLTZ) /* bltz and further are encoded as REGIMM */
+  if (condition >= ORC_MSA_BLTZ) /* bltz and further are encoded as REGIMM */
     orc_msa_emit (compiler,
-                   MIPS_IMMEDIATE_REGIMM_INSTRUCTION(condition - ORC_MIPS_BLTZ,
+                   MIPS_IMMEDIATE_REGIMM_INSTRUCTION(condition - ORC_MSA_BLTZ,
                                                      rs, offset>>2));
   else
     orc_msa_emit (compiler,
@@ -351,7 +351,7 @@ orc_msa_emit_conditional_branch_with_offset (OrcCompiler *compiler,
 
 void
 orc_msa_emit_addiu (OrcCompiler *compiler,
-                     OrcMipsRegister dest, OrcMipsRegister source, int value)
+                     OrcMsaRegister dest, OrcMsaRegister source, int value)
 {
   ORC_ASM_CODE (compiler, "  addiu   %s, %s, %d\n",
                 orc_msa_reg_name (dest),
@@ -361,7 +361,7 @@ orc_msa_emit_addiu (OrcCompiler *compiler,
 
 void
 orc_msa_emit_addi (OrcCompiler *compiler,
-                     OrcMipsRegister dest, OrcMipsRegister source, int value)
+                     OrcMsaRegister dest, OrcMsaRegister source, int value)
 {
   ORC_ASM_CODE (compiler, "  addi    %s, %s, %d\n",
                 orc_msa_reg_name (dest),
@@ -371,8 +371,8 @@ orc_msa_emit_addi (OrcCompiler *compiler,
 
 void
 orc_msa_emit_add (OrcCompiler *compiler,
-                   OrcMipsRegister dest,
-                   OrcMipsRegister source1, OrcMipsRegister source2)
+                   OrcMsaRegister dest,
+                   OrcMsaRegister source1, OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  add     %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -383,8 +383,8 @@ orc_msa_emit_add (OrcCompiler *compiler,
 
 void
 orc_msa_emit_addu (OrcCompiler *compiler,
-                    OrcMipsRegister dest,
-                    OrcMipsRegister source1, OrcMipsRegister source2)
+                    OrcMsaRegister dest,
+                    OrcMsaRegister source1, OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  addu    %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -395,8 +395,8 @@ orc_msa_emit_addu (OrcCompiler *compiler,
 
 void
 orc_msa_emit_addu_qb (OrcCompiler *compiler,
-                    OrcMipsRegister dest,
-                    OrcMipsRegister source1, OrcMipsRegister source2)
+                    OrcMsaRegister dest,
+                    OrcMsaRegister source1, OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  addu.qb %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -407,8 +407,8 @@ orc_msa_emit_addu_qb (OrcCompiler *compiler,
 
 void
 orc_msa_emit_addu_ph (OrcCompiler *compiler,
-                    OrcMipsRegister dest,
-                    OrcMipsRegister source1, OrcMipsRegister source2)
+                    OrcMsaRegister dest,
+                    OrcMsaRegister source1, OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  addu.ph %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -419,9 +419,9 @@ orc_msa_emit_addu_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_addq_s_ph (OrcCompiler *compiler,
-                         OrcMipsRegister dest,
-                         OrcMipsRegister source1,
-                         OrcMipsRegister source2)
+                         OrcMsaRegister dest,
+                         OrcMsaRegister source1,
+                         OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  addq_s.ph %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -432,9 +432,9 @@ orc_msa_emit_addq_s_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_adduh_r_qb (OrcCompiler *compiler,
-                         OrcMipsRegister dest,
-                         OrcMipsRegister source1,
-                         OrcMipsRegister source2)
+                         OrcMsaRegister dest,
+                         OrcMsaRegister source1,
+                         OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  adduh_r.qb %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -448,7 +448,7 @@ orc_msa_emit_adduh_r_qb (OrcCompiler *compiler,
 
 void
 orc_msa_emit_ori (OrcCompiler *compiler,
-                     OrcMipsRegister dest, OrcMipsRegister source, int value)
+                     OrcMsaRegister dest, OrcMsaRegister source, int value)
 {
   ORC_ASM_CODE (compiler, "  ori     %s, %s, %d\n",
                 orc_msa_reg_name (dest),
@@ -458,8 +458,8 @@ orc_msa_emit_ori (OrcCompiler *compiler,
 
 void
 orc_msa_emit_or (OrcCompiler *compiler,
-                   OrcMipsRegister dest,
-                   OrcMipsRegister source1, OrcMipsRegister source2)
+                   OrcMsaRegister dest,
+                   OrcMsaRegister source1, OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  or      %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -470,8 +470,8 @@ orc_msa_emit_or (OrcCompiler *compiler,
 
 void
 orc_msa_emit_and (OrcCompiler *compiler,
-                   OrcMipsRegister dest,
-                   OrcMipsRegister source1, OrcMipsRegister source2)
+                   OrcMsaRegister dest,
+                   OrcMsaRegister source1, OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  and     %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -480,28 +480,28 @@ orc_msa_emit_and (OrcCompiler *compiler,
   orc_msa_emit (compiler, MIPS_BINARY_INSTRUCTION(0, source1, source2, dest, 0, 044));
 }
 
-void orc_msa_emit_lui (OrcCompiler *compiler, OrcMipsRegister dest, int value)
+void orc_msa_emit_lui (OrcCompiler *compiler, OrcMsaRegister dest, int value)
 {
   ORC_ASM_CODE (compiler, "  lui     %s,  %d\n",
                 orc_msa_reg_name (dest), value);
   orc_msa_emit (compiler,
                  MIPS_IMMEDIATE_INSTRUCTION (017, /* LUI */
-                                             ORC_MIPS_ZERO,
+                                             ORC_MSA_ZERO,
                                              dest,
                                              value & 0xffff));
 }
 
 void
 orc_msa_emit_move (OrcCompiler *compiler,
-                    OrcMipsRegister dest, OrcMipsRegister source)
+                    OrcMsaRegister dest, OrcMsaRegister source)
 {
-  orc_msa_emit_add (compiler, dest, source, ORC_MIPS_ZERO);
+  orc_msa_emit_add (compiler, dest, source, ORC_MSA_ZERO);
 }
 
 void
 orc_msa_emit_sub (OrcCompiler *compiler,
-                   OrcMipsRegister dest,
-                   OrcMipsRegister source1, OrcMipsRegister source2)
+                   OrcMsaRegister dest,
+                   OrcMsaRegister source1, OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  sub     %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -512,8 +512,8 @@ orc_msa_emit_sub (OrcCompiler *compiler,
 
 void
 orc_msa_emit_subu_qb (OrcCompiler *compiler,
-                    OrcMipsRegister dest,
-                    OrcMipsRegister source1, OrcMipsRegister source2)
+                    OrcMsaRegister dest,
+                    OrcMsaRegister source1, OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  subu.qb %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -524,9 +524,9 @@ orc_msa_emit_subu_qb (OrcCompiler *compiler,
 
 void
 orc_msa_emit_subq_s_ph (OrcCompiler *compiler,
-                         OrcMipsRegister dest,
-                         OrcMipsRegister source1,
-                         OrcMipsRegister source2)
+                         OrcMsaRegister dest,
+                         OrcMsaRegister source1,
+                         OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  subq_s.ph %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -537,9 +537,9 @@ orc_msa_emit_subq_s_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_subq_ph (OrcCompiler *compiler,
-                         OrcMipsRegister dest,
-                         OrcMipsRegister source1,
-                         OrcMipsRegister source2)
+                         OrcMsaRegister dest,
+                         OrcMsaRegister source1,
+                         OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  subq.ph %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -550,9 +550,9 @@ orc_msa_emit_subq_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_subu_ph (OrcCompiler *compiler,
-                       OrcMipsRegister dest,
-                       OrcMipsRegister source1,
-                       OrcMipsRegister source2)
+                       OrcMsaRegister dest,
+                       OrcMsaRegister source1,
+                       OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  subu.ph %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -563,38 +563,38 @@ orc_msa_emit_subu_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_srl (OrcCompiler *compiler,
-                     OrcMipsRegister dest, OrcMipsRegister source, int value)
+                     OrcMsaRegister dest, OrcMsaRegister source, int value)
 {
   ORC_ASM_CODE (compiler, "  srl     %s, %s, %d\n",
                 orc_msa_reg_name (dest),
                 orc_msa_reg_name (source), value);
-  orc_msa_emit (compiler, MIPS_BINARY_INSTRUCTION(0, ORC_MIPS_ZERO, source, dest, value, 02));
+  orc_msa_emit (compiler, MIPS_BINARY_INSTRUCTION(0, ORC_MSA_ZERO, source, dest, value, 02));
 }
 
 void
 orc_msa_emit_sll (OrcCompiler *compiler,
-                     OrcMipsRegister dest, OrcMipsRegister source, int value)
+                     OrcMsaRegister dest, OrcMsaRegister source, int value)
 {
   ORC_ASM_CODE (compiler, "  sll     %s, %s, %d\n",
                 orc_msa_reg_name (dest),
                 orc_msa_reg_name (source), value);
-  orc_msa_emit (compiler, MIPS_BINARY_INSTRUCTION(0, ORC_MIPS_ZERO, source, dest, value, 0));
+  orc_msa_emit (compiler, MIPS_BINARY_INSTRUCTION(0, ORC_MSA_ZERO, source, dest, value, 0));
 }
 
 void
 orc_msa_emit_sra (OrcCompiler *compiler,
-                     OrcMipsRegister dest, OrcMipsRegister source, int value)
+                     OrcMsaRegister dest, OrcMsaRegister source, int value)
 {
   ORC_ASM_CODE (compiler, "  sra     %s, %s, %d\n",
                 orc_msa_reg_name (dest),
                 orc_msa_reg_name (source), value);
-  orc_msa_emit (compiler, MIPS_BINARY_INSTRUCTION(0, ORC_MIPS_ZERO, source, dest, value, 03));
+  orc_msa_emit (compiler, MIPS_BINARY_INSTRUCTION(0, ORC_MSA_ZERO, source, dest, value, 03));
 }
 
 void
 orc_msa_emit_shll_ph (OrcCompiler *compiler,
-                       OrcMipsRegister dest,
-                       OrcMipsRegister source,
+                       OrcMsaRegister dest,
+                       OrcMsaRegister source,
                        int value)
 {
   ORC_ASM_CODE (compiler, "  shll.ph %s, %s, %d\n",
@@ -605,8 +605,8 @@ orc_msa_emit_shll_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_shra_ph (OrcCompiler *compiler,
-                       OrcMipsRegister dest,
-                       OrcMipsRegister source,
+                       OrcMsaRegister dest,
+                       OrcMsaRegister source,
                        int value)
 {
   ORC_ASM_CODE (compiler, "  shra.ph %s, %s, %d\n",
@@ -617,8 +617,8 @@ orc_msa_emit_shra_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_shrl_ph (OrcCompiler *compiler,
-                       OrcMipsRegister dest,
-                       OrcMipsRegister source,
+                       OrcMsaRegister dest,
+                       OrcMsaRegister source,
                        int value)
 {
   ORC_ASM_CODE (compiler, "  shrl.ph %s, %s, %d\n",
@@ -629,7 +629,7 @@ orc_msa_emit_shrl_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_andi (OrcCompiler *compiler,
-                     OrcMipsRegister dest, OrcMipsRegister source, int value)
+                     OrcMsaRegister dest, OrcMsaRegister source, int value)
 {
   ORC_ASM_CODE (compiler, "  andi    %s, %s, %d\n",
                 orc_msa_reg_name (dest),
@@ -639,8 +639,8 @@ orc_msa_emit_andi (OrcCompiler *compiler,
 
 
 void
-orc_msa_emit_prepend (OrcCompiler *compiler, OrcMipsRegister dest,
-                       OrcMipsRegister source, int shift_amount)
+orc_msa_emit_prepend (OrcCompiler *compiler, OrcMsaRegister dest,
+                       OrcMsaRegister source, int shift_amount)
 {
   ORC_ASM_CODE (compiler, "  prepend %s, %s, %d\n",
                 orc_msa_reg_name (dest),
@@ -654,8 +654,8 @@ orc_msa_emit_prepend (OrcCompiler *compiler, OrcMipsRegister dest,
 }
 
 void
-orc_msa_emit_append (OrcCompiler *compiler, OrcMipsRegister dest,
-                       OrcMipsRegister source, int shift_amount)
+orc_msa_emit_append (OrcCompiler *compiler, OrcMsaRegister dest,
+                       OrcMsaRegister source, int shift_amount)
 {
   ORC_ASM_CODE (compiler, "  append  %s, %s, %d\n",
                 orc_msa_reg_name (dest),
@@ -670,9 +670,9 @@ orc_msa_emit_append (OrcCompiler *compiler, OrcMipsRegister dest,
 
 void
 orc_msa_emit_mul (OrcCompiler *compiler,
-                   OrcMipsRegister dest,
-                   OrcMipsRegister source1,
-                   OrcMipsRegister source2)
+                   OrcMsaRegister dest,
+                   OrcMsaRegister source1,
+                   OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  mul     %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -683,9 +683,9 @@ orc_msa_emit_mul (OrcCompiler *compiler,
 
 void
 orc_msa_emit_mul_ph (OrcCompiler *compiler,
-                      OrcMipsRegister dest,
-                      OrcMipsRegister source1,
-                      OrcMipsRegister source2)
+                      OrcMsaRegister dest,
+                      OrcMsaRegister source1,
+                      OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  mul.ph  %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -702,7 +702,7 @@ orc_msa_emit_mul_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_mtlo
-(OrcCompiler *compiler, OrcMipsRegister source)
+(OrcCompiler *compiler, OrcMsaRegister source)
 {
   ORC_ASM_CODE (compiler, "  mtlo    %s\n",
                 orc_msa_reg_name (source));
@@ -714,7 +714,7 @@ orc_msa_emit_mtlo
 
 void
 orc_msa_emit_extr_s_h (OrcCompiler *compiler,
-                        OrcMipsRegister dest,
+                        OrcMsaRegister dest,
                         int accumulator,
                         int shift)
 {
@@ -733,9 +733,9 @@ orc_msa_emit_extr_s_h (OrcCompiler *compiler,
 
 void
 orc_msa_emit_slt (OrcCompiler *compiler,
-                   OrcMipsRegister dest,
-                   OrcMipsRegister src1,
-                   OrcMipsRegister src2)
+                   OrcMsaRegister dest,
+                   OrcMsaRegister src1,
+                   OrcMsaRegister src2)
 {
   ORC_ASM_CODE (compiler, "  slt     %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -749,9 +749,9 @@ orc_msa_emit_slt (OrcCompiler *compiler,
 
 void
 orc_msa_emit_movn (OrcCompiler *compiler,
-                    OrcMipsRegister dest,
-                    OrcMipsRegister src,
-                    OrcMipsRegister condition)
+                    OrcMsaRegister dest,
+                    OrcMsaRegister src,
+                    OrcMsaRegister condition)
 {
   ORC_ASM_CODE (compiler, "  movn    %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -764,7 +764,7 @@ orc_msa_emit_movn (OrcCompiler *compiler,
 }
 
 void
-orc_msa_emit_repl_ph (OrcCompiler *compiler, OrcMipsRegister dest, int value)
+orc_msa_emit_repl_ph (OrcCompiler *compiler, OrcMsaRegister dest, int value)
 {
   ORC_ASM_CODE (compiler, "  repl.ph %s, %d\n",
                 orc_msa_reg_name (dest),
@@ -779,15 +779,15 @@ orc_msa_emit_repl_ph (OrcCompiler *compiler, OrcMipsRegister dest, int value)
 
 void
 orc_msa_emit_replv_qb (OrcCompiler *compiler,
-                        OrcMipsRegister dest,
-                        OrcMipsRegister source)
+                        OrcMsaRegister dest,
+                        OrcMsaRegister source)
 {
   ORC_ASM_CODE (compiler, "  replv.qb %s, %s\n",
                 orc_msa_reg_name (dest),
                 orc_msa_reg_name (source));
   orc_msa_emit (compiler,
                  MIPS_BINARY_INSTRUCTION(037, /* SPECIAL3 */
-                                         ORC_MIPS_ZERO, /* actually no reg here */
+                                         ORC_MSA_ZERO, /* actually no reg here */
                                          source, dest,
                                          03, /* REPLV.QB */
                                          022 /* ABSQ_S.PH */));
@@ -795,15 +795,15 @@ orc_msa_emit_replv_qb (OrcCompiler *compiler,
 
 void
 orc_msa_emit_replv_ph (OrcCompiler *compiler,
-                        OrcMipsRegister dest,
-                        OrcMipsRegister source)
+                        OrcMsaRegister dest,
+                        OrcMsaRegister source)
 {
   ORC_ASM_CODE (compiler, "  replv.ph %s, %s\n",
                 orc_msa_reg_name (dest),
                 orc_msa_reg_name (source));
   orc_msa_emit (compiler,
                  MIPS_BINARY_INSTRUCTION(037, /* SPECIAL3 */
-                                         ORC_MIPS_ZERO, /* actually no reg here */
+                                         ORC_MSA_ZERO, /* actually no reg here */
                                          source, dest,
                                          013, /* REPLV.PH */
                                          022 /* ABSQ_S.PH */));
@@ -811,15 +811,15 @@ orc_msa_emit_replv_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_preceu_ph_qbr (OrcCompiler *compiler,
-                             OrcMipsRegister dest,
-                             OrcMipsRegister source)
+                             OrcMsaRegister dest,
+                             OrcMsaRegister source)
 {
   ORC_ASM_CODE (compiler, "  preceu.ph.qbr %s, %s\n",
                 orc_msa_reg_name (dest),
                 orc_msa_reg_name (source));
   orc_msa_emit (compiler,
                  MIPS_BINARY_INSTRUCTION(037, /* SPECIAL3 */
-                                         ORC_MIPS_ZERO, /* actually no reg here */
+                                         ORC_MSA_ZERO, /* actually no reg here */
                                          source, dest,
                                          035, /* PRECEU.PH.QBR */
                                          022 /* ABSQ_S.PH */));
@@ -827,9 +827,9 @@ orc_msa_emit_preceu_ph_qbr (OrcCompiler *compiler,
 
 void
 orc_msa_emit_precr_qb_ph (OrcCompiler *compiler,
-                           OrcMipsRegister dest,
-                           OrcMipsRegister source1,
-                           OrcMipsRegister source2)
+                           OrcMsaRegister dest,
+                           OrcMsaRegister source1,
+                           OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  precr.qb.ph %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -844,9 +844,9 @@ orc_msa_emit_precr_qb_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_precrq_qb_ph (OrcCompiler *compiler,
-                           OrcMipsRegister dest,
-                           OrcMipsRegister source1,
-                           OrcMipsRegister source2)
+                           OrcMsaRegister dest,
+                           OrcMsaRegister source1,
+                           OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  precrq.qb.ph %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -861,8 +861,8 @@ orc_msa_emit_precrq_qb_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_cmp_lt_ph (OrcCompiler *compiler,
-                         OrcMipsRegister source1,
-                         OrcMipsRegister source2)
+                         OrcMsaRegister source1,
+                         OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  cmp.lt.ph %s, %s\n",
                 orc_msa_reg_name (source1),
@@ -878,9 +878,9 @@ orc_msa_emit_cmp_lt_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_pick_ph (OrcCompiler *compiler,
-                       OrcMipsRegister dest,
-                       OrcMipsRegister source1,
-                       OrcMipsRegister source2)
+                       OrcMsaRegister dest,
+                       OrcMsaRegister source1,
+                       OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  pick.ph %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -897,9 +897,9 @@ orc_msa_emit_pick_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_packrl_ph (OrcCompiler *compiler,
-                         OrcMipsRegister dest,
-                         OrcMipsRegister source1,
-                         OrcMipsRegister source2)
+                         OrcMsaRegister dest,
+                         OrcMsaRegister source1,
+                         OrcMsaRegister source2)
 {
   ORC_ASM_CODE (compiler, "  packrl.ph %s, %s, %s\n",
                 orc_msa_reg_name (dest),
@@ -914,15 +914,15 @@ orc_msa_emit_packrl_ph (OrcCompiler *compiler,
 
 void
 orc_msa_emit_wsbh (OrcCompiler *compiler,
-                    OrcMipsRegister dest,
-                    OrcMipsRegister source)
+                    OrcMsaRegister dest,
+                    OrcMsaRegister source)
 {
   ORC_ASM_CODE (compiler, "  wsbh    %s, %s\n",
                 orc_msa_reg_name (dest),
                 orc_msa_reg_name (source));
   orc_msa_emit (compiler,
                  MIPS_BINARY_INSTRUCTION(037, /* SPECIAL3 */
-                                         ORC_MIPS_ZERO, /* actually no reg here */
+                                         ORC_MSA_ZERO, /* actually no reg here */
                                          source, dest,
                                          02, /* WSBH */
                                          040 /* BSHFL */));
@@ -930,15 +930,15 @@ orc_msa_emit_wsbh (OrcCompiler *compiler,
 
 void
 orc_msa_emit_seh (OrcCompiler *compiler,
-                   OrcMipsRegister dest,
-                   OrcMipsRegister source)
+                   OrcMsaRegister dest,
+                   OrcMsaRegister source)
 {
   ORC_ASM_CODE (compiler, "  seh     %s, %s\n",
                 orc_msa_reg_name (dest),
                 orc_msa_reg_name (source));
   orc_msa_emit (compiler,
                  MIPS_BINARY_INSTRUCTION(037, /* SPECIAL3 */
-                                         ORC_MIPS_ZERO, /* actually no reg here */
+                                         ORC_MSA_ZERO, /* actually no reg here */
                                          source, dest,
                                          030, /* SEH */
                                          040 /* BSHFL */));
@@ -948,7 +948,7 @@ orc_msa_emit_seh (OrcCompiler *compiler,
 void
 orc_msa_emit_pref (OrcCompiler *compiler,
                     int hint,
-                    OrcMipsRegister base,
+                    OrcMsaRegister base,
                     int offset)
 {
   ORC_ASM_CODE (compiler, "  pref    %d, %d(%s)\n",

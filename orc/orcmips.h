@@ -39,6 +39,7 @@ ORC_BEGIN_DECLS
 typedef enum {
   ORC_TARGET_MIPS_FRAME_POINTER = (1<<0),
   ORC_TARGET_MIPS_DSP2          = (1<<1),
+  ORC_TARGET_MIPS_MSA          = (1<<2)
 } OrcTargetMipsFlags;
 
 typedef enum {

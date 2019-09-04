@@ -31,6 +31,7 @@
 #include <orc/orcmips.h>
 #include <orc/orcdebug.h>
 #include <stdlib.h>
+#include <orc/orcmsa.h>
 
 #define ORC_SW_MAX 32767
 #define ORC_SW_MIN (-1-ORC_SW_MAX)
@@ -201,8 +202,8 @@ orc_msa_rule_mulswl (OrcCompiler *compiler, void *user, OrcInstruction *insn)
   int src1 = ORC_SRC_ARG (compiler, insn, 0);
   int src2 = ORC_SRC_ARG (compiler, insn, 1);
   int dest = ORC_DEST_ARG (compiler, insn, 0);
-  OrcMipsRegister tmp0 = ORC_MSA_T3;
-  OrcMipsRegister tmp1 = ORC_MSA_T4;
+  OrcMsaRegister tmp0 = ORC_MSA_T3;
+  OrcMsaRegister tmp1 = ORC_MSA_T4;
 
   orc_mips_emit_seh (compiler, tmp0, src1);
   orc_mips_emit_seh (compiler, tmp1, src2);
@@ -238,8 +239,8 @@ orc_msa_rule_convssslw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 {
   int src = ORC_SRC_ARG (compiler, insn, 0);
   int dest = ORC_DEST_ARG (compiler, insn, 0);
-  OrcMipsRegister tmp0 = ORC_MSA_T3;
-  OrcMipsRegister tmp1 = ORC_MSA_T4;
+  OrcMsaRegister tmp0 = ORC_MSA_T3;
+  OrcMsaRegister tmp1 = ORC_MSA_T4;
 
   if (dest != src)
     orc_mips_emit_move (compiler, dest, src);
@@ -259,7 +260,7 @@ orc_msa_rule_convssswb (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 {
   int src = ORC_SRC_ARG (compiler, insn, 0);
   int dest = ORC_DEST_ARG (compiler, insn, 0);
-  OrcMipsRegister tmp = ORC_MSA_T3;
+  OrcMsaRegister tmp = ORC_MSA_T3;
 
   orc_mips_emit_repl_ph (compiler, tmp, ORC_SB_MAX);
   orc_mips_emit_cmp_lt_ph (compiler, tmp, src);
@@ -276,7 +277,7 @@ orc_msa_rule_convsuswb (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 {
   int src = ORC_SRC_ARG (compiler, insn, 0);
   int dest = ORC_DEST_ARG (compiler, insn, 0);
-  OrcMipsRegister tmp = ORC_MSA_T3;
+  OrcMsaRegister tmp = ORC_MSA_T3;
 
   orc_mips_emit_repl_ph (compiler, tmp, ORC_UB_MAX);
   orc_mips_emit_cmp_lt_ph (compiler, tmp, src);
@@ -331,8 +332,8 @@ orc_msa_rule_mergebw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
   int src1 = ORC_SRC_ARG (compiler, insn, 0);
   int src2 = ORC_SRC_ARG (compiler, insn, 1);
   int dest = ORC_DEST_ARG (compiler, insn, 0);
-  OrcMipsRegister tmp0 = ORC_MSA_T3;
-  OrcMipsRegister tmp1 = ORC_MSA_T4;
+  OrcMsaRegister tmp0 = ORC_MSA_T3;
+  OrcMsaRegister tmp1 = ORC_MSA_T4;
 
   if (compiler->insn_shift > 0) {
     orc_mips_emit_preceu_ph_qbr (compiler, tmp0, src1);
@@ -396,9 +397,9 @@ orc_msa_rule_loadupib (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 {
   OrcVariable *src = compiler->vars + insn->src_args[0];
   OrcVariable *dest = compiler->vars + insn->dest_args[0];
-  OrcMipsRegister tmp0 = ORC_MSA_T3;
-  OrcMipsRegister tmp1 = ORC_MSA_T4;
-  OrcMipsRegister tmp2 = ORC_MSA_T5;
+  OrcMsaRegister tmp0 = ORC_MSA_T3;
+  OrcMsaRegister tmp1 = ORC_MSA_T4;
+  OrcMsaRegister tmp2 = ORC_MSA_T5;
   int offset;
 
   if (src->vartype != ORC_VAR_TYPE_SRC) {
@@ -474,7 +475,7 @@ orc_msa_rule_loadupdb (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 {
   OrcVariable *src = compiler->vars + insn->src_args[0];
   OrcVariable *dest = compiler->vars + insn->dest_args[0];
-  OrcMipsRegister tmp = ORC_MSA_T3;
+  OrcMsaRegister tmp = ORC_MSA_T3;
   int offset;
 
   if (src->vartype != ORC_VAR_TYPE_SRC) {
@@ -649,7 +650,7 @@ orc_msa_rule_splatbw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 {
   int src = ORC_SRC_ARG (compiler, insn, 0);
   int dest = ORC_DEST_ARG (compiler, insn, 0);
-  OrcMipsRegister tmp = ORC_MSA_T3;
+  OrcMsaRegister tmp = ORC_MSA_T3;
 
   orc_mips_emit_preceu_ph_qbr (compiler, tmp, src);
   orc_mips_emit_shll_ph (compiler, dest, tmp, 8);
