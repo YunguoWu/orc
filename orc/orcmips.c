@@ -60,7 +60,7 @@
                  | (opcode & 0x1f) << 6 \
                  | 023) /* SHLL.QB */
 
-static const char *
+const char *
 orc_mips_reg_name (int reg)
 {
   static const char *regs[] = {

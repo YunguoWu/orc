@@ -28,23 +28,46 @@
 */
 #include "config.h"
 
+#include <orc/orcmips.h>
 #include <orc/orcmsa.h>
 #include <orc/orcdebug.h>
 
-#define MIPS_IMMEDIATE_INSTRUCTION(opcode,rs,rt,immediate) \
-    (((opcode) & 0x3f) << 26 \
-     |((rs)-ORC_GP_REG_BASE) << 21 \
-     |((rt)-ORC_GP_REG_BASE) << 16 \
-     |((immediate) & 0xffff))
+/*Two-bit Data Format Field Encoding*/
+#define DF_B 0b00
+#define DF_H 0b01
+#define DF_W 0b10
+#define DF_D 0b11
 
-#define REGIMM 01
-#define MIPS_IMMEDIATE_REGIMM_INSTRUCTION(operation,rs,immediate) \
-    (REGIMM << 26 \
-     |((rs)-ORC_GP_REG_BASE) << 21 \
-     |((operation) & 0x1f) << 16 \
-     |((immediate) & 0xffff))
+/*I10 instruction format: MSA operation df i10 wd minor_opcode*/
+#define MSA_I10_INSTRUCTION(operation,df,wd,i10,mopcode) \
+        (0b011110 << 26 \
+         | ((operation) & 0x07) << 23 \
+         | (df) << 21 \
+         | (i10) << 11 \
+         | ((wd)-ORC_VEC_REG_BASE) << 6 \
+         | ((mopcode) & 0x3f))
 
-#define MIPS_BINARY_INSTRUCTION(opcode,rs,rt,rd,sa,function) \
+/*MI10 instruction format: MSA s10 rs wd minor-opcode df*/
+#define MSA_MI10_INSTRUCTION(s10,rs,wd,mopcode,df) \
+            (0b011110 << 26 \
+             | (s10) << 16 \
+             | ((rs)-ORC_GP_REG_BASE) << 11 \
+             | ((wd)-ORC_VEC_REG_BASE) << 6 \
+             | (mopcode) << 2 \
+             | ((df) & 0x3f))
+
+/*2R instruction format: 011110 operation df ws wd minor_opcode*/
+#define MSA_2R_INSTRUCTION(operation,df,ws,wd,mopcode) \
+        (0b011110 << 26 \
+         | ((operation) & 0x07) << 18 \
+         | (df) << 16 \
+         | ((ws)-ORC_VEC_REG_BASE) << 11 \
+         | ((wd)-ORC_VEC_REG_BASE) << 6 \
+         | ((mopcode) & 0x3f))
+
+
+
+#define MSA_BINARY_INSTRUCTION(opcode,rs,rt,rd,sa,function) \
     (((opcode) & 0x3f) << 26 \
      | ((rs)-ORC_GP_REG_BASE) << 21 \
      | ((rt)-ORC_GP_REG_BASE) << 16 \
@@ -52,7 +75,7 @@
      | ((sa) & 0x1f) << 6 \
      | ((function) & 0x3f))
 
-#define MIPS_SHLLQB_INSTRUCTION(opcode, source, dest, immediate) \
+#define MSA_SHLLQB_INSTRUCTION(opcode, source, dest, immediate) \
                  (037 << 26 /* SPECIAL3 */ \
                  | (immediate & 0xf) << 21 \
                  | (source - ORC_GP_REG_BASE) << 16 \
@@ -74,7 +97,7 @@ orc_msa_reg_name (int reg)
     "$w28", "$w29", "$w30", "$w31"
   };
 
-  if (reg < ORC_GP_REG_BASE || reg >= ORC_GP_REG_BASE + 32)
+  if (reg < ORC_VEC_REG_BASE || reg >= ORC_VEC_REG_BASE + 32)
     return "ERROR";
 
   return vec_regs[reg&0x1f];
@@ -87,6 +110,162 @@ orc_msa_emit (OrcCompiler *compiler, orc_uint32 insn)
   compiler->codeptr+=4;
 }
 
+void
+orc_msa_emit_loadib (OrcCompiler *compiler, int reg, int value)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  LDI.B %s, %d\n",  //LDI.B wd,s10
+      orc_msa_reg_name (reg), value);
+  code = MSA_I10_INSTRUCTION(0x12, DF_B, reg, value, 0x0E);
+  orc_msa_emit (compiler, code);
+}
+
+void
+orc_msa_emit_loadiw (OrcCompiler *compiler, int reg, int value)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  LDI.H %s, %d\n",  //LDI.H wd,s10
+      orc_msa_reg_name (reg), value & 0xff);
+  code = MSA_I10_INSTRUCTION(0x12, DF_H, reg, value, 0x0E);
+  orc_msa_emit (compiler, code);
+}
+
+void
+orc_msa_emit_loadil (OrcCompiler *compiler, int reg, int value)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  LDI.W %s, %d\n",  //LDI.W wd,s10
+      orc_msa_reg_name (reg), value & 0xff);
+  code = MSA_I10_INSTRUCTION(0x12, DF_W, reg, value, 0x0E);
+  orc_msa_emit (compiler, code);
+}
+
+
+void
+orc_msa_emit_loadiq (OrcCompiler *compiler, int reg, int value)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  LDI.D %s, %d\n",  //LDI.D wd,s10
+      orc_msa_reg_name (reg), value & 0xff);
+  code = MSA_I10_INSTRUCTION(0x12, DF_D, reg, value, 0x0E);
+  orc_msa_emit (compiler, code);
+}
+
+void
+orc_msa_emit_loadpb (OrcCompiler *compiler, int dest, int param)
+{
+  orc_uint32 code;
+  int base = compiler->vars[param].ptr_register;
+
+  orc_mips_emit_lb (compiler, ORC_MIPS_T3, base, 0);
+
+  ORC_ASM_CODE(compiler,"  FILL.B %s, %s\n",  //FILL.B wd,rs
+      orc_msa_reg_name (dest), orc_mips_reg_name (ORC_MIPS_T3));
+  code = MSA_2R_INSTRUCTION(0xB0, DF_B, ORC_MIPS_T3-ORC_GP_REG_BASE+ORC_VEC_REG_BASE, dest, 0x0E);
+  orc_msa_emit (compiler, code);
+}
+
+void
+orc_msa_emit_loadpw (OrcCompiler *compiler, int dest, int param)
+{
+  orc_uint32 code;
+  int base = compiler->vars[param].ptr_register;
+
+  orc_mips_emit_lb (compiler, ORC_MIPS_T3, base, 0);
+
+  ORC_ASM_CODE(compiler,"  FILL.H %s, %s\n",  //FILL.H wd,rs
+      orc_msa_reg_name (dest), orc_mips_reg_name (ORC_MIPS_T3));
+  code = MSA_2R_INSTRUCTION(0xB0, DF_H, ORC_MIPS_T3-ORC_GP_REG_BASE+ORC_VEC_REG_BASE, dest, 0x0E);
+  orc_msa_emit (compiler, code);
+}
+
+void
+orc_msa_emit_loadpl (OrcCompiler *compiler, int dest, int param)
+{
+  orc_uint32 code;
+  int base = compiler->vars[param].ptr_register;
+
+  orc_mips_emit_lw (compiler, ORC_MIPS_T3, base, 0);
+
+  ORC_ASM_CODE(compiler,"  FILL.W %s, %s\n",  //FILL.W wd,rs
+      orc_msa_reg_name (dest), orc_mips_reg_name (ORC_MIPS_T3));
+  code = MSA_2R_INSTRUCTION(0xB0, DF_W, ORC_MIPS_T3-ORC_GP_REG_BASE+ORC_VEC_REG_BASE, dest, 0x0E);
+  orc_msa_emit (compiler, code);
+}
+
+void
+orc_msa_emit_loadpq (OrcCompiler *compiler, int dest, int param)
+{
+#if (__mips == 64)
+  orc_uint32 code;
+  int base = compiler->vars[param].ptr_register;
+
+  orc_mips_emit_lw (compiler, ORC_MIPS_T3, base, 0);
+
+  ORC_ASM_CODE(compiler,"  FILL.W %s, %s\n",  //FILL.W wd,rs
+      orc_msa_reg_name (dest), orc_mips_reg_name (ORC_MIPS_T3));
+  code = MSA_2R_INSTRUCTION(0xB0, DF_W, ORC_MIPS_T3-ORC_GP_REG_BASE+ORC_VEC_REG_BASE, dest, 0x0E);
+  orc_msa_emit (compiler, code);
+#else
+#endif
+}
+
+void
+orc_msa_emit_loadb (OrcCompiler *compiler, int dest, int param)
+{
+  orc_uint32 code;
+  int base = compiler->vars[param].ptr_register;
+
+  ORC_ASM_CODE(compiler,"  LD.B %s, %d(%s)\n",  //LD.B wd,s10(rs)
+      orc_msa_reg_name (dest), 0, orc_mips_reg_name (base));
+  code = MSA_MI10_INSTRUCTION(0, base, dest, 0x08, DF_B);
+  orc_msa_emit (compiler, code);
+}
+
+void
+orc_msa_emit_loadw (OrcCompiler *compiler, int dest, int param)
+{
+  orc_uint32 code;
+  int base = compiler->vars[param].ptr_register;
+
+  ORC_ASM_CODE(compiler,"  LD.H %s, %d(%s)\n",  //LD.H wd,s10(rs)
+      orc_msa_reg_name (dest), 0, orc_mips_reg_name (base));
+  code = MSA_MI10_INSTRUCTION(0, base, dest, 0x08, DF_B);
+  orc_msa_emit (compiler, code);
+}
+
+
+void
+orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int param)
+{
+  orc_uint32 code;
+  int base = compiler->vars[param].ptr_register;
+
+  ORC_ASM_CODE(compiler,"  LD.W %s, %d(%s)\n",  //LD.W wd,s10(rs)
+      orc_msa_reg_name (dest), 0, orc_mips_reg_name (base));
+  code = MSA_MI10_INSTRUCTION(0, base, dest, 0x08, DF_W);
+  orc_msa_emit (compiler, code);
+}
+
+
+void
+orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int param)
+{
+  orc_uint32 code;
+  int base = compiler->vars[param].ptr_register;
+
+  ORC_ASM_CODE(compiler,"  LD.D %s, %d(%s)\n",  //LD.D wd,s10(rs)
+      orc_msa_reg_name (dest), 0, orc_mips_reg_name (base));
+  code = MSA_MI10_INSTRUCTION(0, base, dest, 0x08, DF_D);
+  orc_msa_emit (compiler, code);
+}
+
+
+#if 0
 void
 orc_msa_emit_label (OrcCompiler *compiler, unsigned int label)
 {
@@ -141,22 +320,12 @@ orc_msa_emit_align (OrcCompiler *compiler, int align_shift)
 void
 orc_msa_emit_nop (OrcCompiler *compiler)
 {
-  ORC_ASM_CODE(compiler,"  nop\n");
-  /* We emit "or $at, $at, $0" aka "move $at, $at" for nop, because that's what
-   * gnu as does. */
-  orc_msa_emit (compiler,
-      MIPS_BINARY_INSTRUCTION(0,ORC_MSA_AT, ORC_MSA_ZERO, ORC_MSA_AT,
-                              0, 045));
 }
 
 void
 orc_msa_emit_sw (OrcCompiler *compiler, OrcMsaRegister reg,
                   OrcMsaRegister base, unsigned int offset)
 {
-  ORC_ASM_CODE (compiler, "  sw      %s, %d(%s)\n",
-                orc_msa_reg_name (reg),
-                offset, orc_msa_reg_name (base));
-  orc_msa_emit (compiler, MIPS_IMMEDIATE_INSTRUCTION(053, base, reg, offset));
 }
 
 void
@@ -313,40 +482,6 @@ orc_msa_emit_conditional_branch_with_offset (OrcCompiler *compiler,
                                               OrcMsaRegister rt,
                                               int offset)
 {
-  char *opcode_name[] = { NULL, NULL, NULL, NULL,
-    "beq ",
-    "bne ",
-    "blez",
-    "bgtz",
-    "bltz",
-    "bgez"
-  };
-  switch (condition) {
-  case ORC_MSA_BEQ:
-  case ORC_MSA_BNE:
-    ORC_ASM_CODE (compiler, "  %s    %s, %s, %d\n", opcode_name[condition],
-                  orc_msa_reg_name (rs), orc_msa_reg_name (rt), offset);
-    break;
-  case ORC_MSA_BLEZ:
-  case ORC_MSA_BGTZ:
-  case ORC_MSA_BLTZ:
-  case ORC_MSA_BGEZ:
-    ORC_ASSERT (rt == ORC_MSA_ZERO);
-    ORC_ASM_CODE (compiler, "  %s    %s, %d\n", opcode_name[condition],
-                  orc_msa_reg_name (rs), offset);
-    break;
-  default:
-    ORC_PROGRAM_ERROR (compiler, "unknown branch type: 0x%x", condition);
-  }
-
-  if (condition >= ORC_MSA_BLTZ) /* bltz and further are encoded as REGIMM */
-    orc_msa_emit (compiler,
-                   MIPS_IMMEDIATE_REGIMM_INSTRUCTION(condition - ORC_MSA_BLTZ,
-                                                     rs, offset>>2));
-  else
-    orc_msa_emit (compiler,
-                   MIPS_IMMEDIATE_INSTRUCTION(condition, rs, rt, offset>>2));
-
 }
 
 void
@@ -960,3 +1095,4 @@ orc_msa_emit_pref (OrcCompiler *compiler,
                  | (offset & 0xffff));
 
 }
+#endif

@@ -81,6 +81,9 @@ ORC_API
 unsigned long orc_mips_get_cpu_flags (void);
 
 ORC_API
+const char * orc_mips_reg_name (int reg);
+
+ORC_API
 void orc_mips_emit_label (OrcCompiler *compiler, unsigned int label);
 
 ORC_API

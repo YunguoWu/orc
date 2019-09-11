@@ -61,7 +61,7 @@ if ENABLE_BACKEND_MIPS
 liborc_@ORC_MAJORMINOR@_la_SOURCES += orcmips.c orcprogram-mips.c orcrules-mips.c
 endif
 if ENABLE_BACKEND_MSA
-liborc_@ORC_MAJORMINOR@_la_SOURCES += orcmsa.c orcprogram-msa.c orcrules-msa.c orccpu-msa.c
+liborc_@ORC_MAJORMINOR@_la_SOURCES += orcmips.c orcmsa.c orcprogram-msa.c orcrules-msa.c orccpu-msa.c
 endif
 
 if HAVE_I386
