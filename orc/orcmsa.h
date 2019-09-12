@@ -74,37 +74,37 @@ typedef enum {
 
 ORC_API void orc_msa_emit_loadib (OrcCompiler *compiler, int reg, int value);
 
-void orc_msa_emit_loadib (OrcCompiler *compiler, int reg, int value);
+ORC_API void orc_msa_emit_loadib (OrcCompiler *compiler, int reg, int value);
 
-void orc_msa_emit_loadiw (OrcCompiler *compiler, int reg, int value);
+ORC_API void orc_msa_emit_loadiw (OrcCompiler *compiler, int reg, int value);
 
-void orc_msa_emit_loadil (OrcCompiler *compiler, int reg, int value);
+ORC_API void orc_msa_emit_loadil (OrcCompiler *compiler, int reg, int value);
 
-void
-orc_msa_emit_loadiq (OrcCompiler *compiler, int reg, int value);
+ORC_API void orc_msa_emit_loadiq (OrcCompiler *compiler, int reg, int value);
 
-void
-orc_msa_emit_loadpb (OrcCompiler *compiler, int dest, int param);
+ORC_API void orc_msa_emit_loadpb (OrcCompiler *compiler, int dest, int param);
 
-void orc_msa_emit_loadpw (OrcCompiler *compiler, int dest, int param);
+ORC_API void orc_msa_emit_loadpw (OrcCompiler *compiler, int dest, int param);
 
-void
-orc_msa_emit_loadpl (OrcCompiler *compiler, int dest, int param);
+ORC_API void orc_msa_emit_loadpl (OrcCompiler *compiler, int dest, int param);
 
-void
-orc_msa_emit_loadpq (OrcCompiler *compiler, int dest, int param);
+ORC_API void orc_msa_emit_loadpq (OrcCompiler *compiler, int dest, int param);
 
-void
-orc_msa_emit_loadb (OrcCompiler *compiler, int dest, int param);
+ORC_API void orc_msa_emit_loadb (OrcCompiler *compiler, int dest, int src);
 
-void
-orc_msa_emit_loadw (OrcCompiler *compiler, int dest, int param);
+ORC_API void orc_msa_emit_loadw (OrcCompiler *compiler, int dest, int src);
 
-void
-orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int param);
+ORC_API void orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int src);
 
-void
-orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int param);
+ORC_API void orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int src);
+
+ORC_API void orc_msa_emit_storeb (OrcCompiler *compiler, int dest, int src);
+
+ORC_API void orc_msa_emit_storew (OrcCompiler *compiler, int dest, int src);
+
+ORC_API void orc_msa_emit_storel (OrcCompiler *compiler, int dest, int src);
+
+ORC_API void orc_msa_emit_storeq (OrcCompiler *compiler, int dest, int src);
 
 #endif /* ORC_ENABLE_UNSTABLE_API */
 
