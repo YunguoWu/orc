@@ -35,18 +35,18 @@
 #include <string.h>
 #include <orc/orcmsa.h>
 
-static unsigned int orc_compiler_orc_msa_get_default_flags (void);
+static unsigned int orc_compiler_msa_get_default_flags (void);
 
-static void orc_compiler_orc_msa_init (OrcCompiler *compiler);
+static void orc_compiler_msa_init (OrcCompiler *compiler);
 
-static void orc_compiler_orc_msa_assemble (OrcCompiler *compiler);
+static void orc_compiler_msa_assemble (OrcCompiler *compiler);
 
-static const char * orc_compiler_orc_msa_get_asm_preamble (void);
+static const char * orc_compiler_msa_get_asm_preamble (void);
 
 static void orc_msa_flush_cache (OrcCode *code);
 
 /* in orcrules-mips.c */
-extern void orc_compiler_orc_msa_register_rules (OrcTarget *target);
+extern void orc_compiler_msa_register_rules (OrcTarget *target);
 
 static OrcTarget orc_msa_target = {
   "msa",
@@ -57,12 +57,12 @@ static OrcTarget orc_msa_target = {
   FALSE,
 #endif
   ORC_VEC_REG_BASE,
-  orc_compiler_orc_msa_get_default_flags,
-  orc_compiler_orc_msa_init,
-  orc_compiler_orc_msa_assemble,
+  orc_compiler_msa_get_default_flags,
+  orc_compiler_msa_init,
+  orc_compiler_msa_assemble,
   { { 0 } },
   0,
-  orc_compiler_orc_msa_get_asm_preamble,
+  orc_compiler_msa_get_asm_preamble,
   NULL,
   NULL,
   orc_msa_flush_cache,
@@ -93,13 +93,13 @@ orc_msa_init (void)
 
   orc_target_register (&orc_msa_target);
 
-  orc_compiler_orc_msa_register_rules (&orc_msa_target);
+  orc_compiler_msa_register_rules (&orc_msa_target);
 }
 
 static unsigned int
-orc_compiler_orc_msa_get_default_flags (void)
+orc_compiler_msa_get_default_flags (void)
 {
-  unsigned int flags = ORC_TARGET_MIPS_DSP2;
+  unsigned int flags = ORC_TARGET_MIPS_MSA;
 
   if (_orc_compiler_flag_debug) {
     flags |= ORC_TARGET_MIPS_FRAME_POINTER;
@@ -108,7 +108,7 @@ orc_compiler_orc_msa_get_default_flags (void)
 }
 
 void
-orc_compiler_orc_msa_init (OrcCompiler *compiler)
+orc_compiler_msa_init (OrcCompiler *compiler)
 {
   int i;
 
@@ -179,7 +179,7 @@ orc_compiler_orc_msa_init (OrcCompiler *compiler)
 }
 
 static const char *
-orc_compiler_orc_msa_get_asm_preamble (void)
+orc_compiler_msa_get_asm_preamble (void)
 {
   return "\n"
       "/* begin Orc MSA target preamble */\n"
@@ -190,7 +190,7 @@ orc_compiler_orc_msa_get_asm_preamble (void)
 }
 
 static int
-orc_mips_emit_prologue (OrcCompiler *compiler)
+orc_msa_emit_prologue (OrcCompiler *compiler)
 {
   int i, stack_size;
   unsigned int stack_increment;
@@ -238,7 +238,7 @@ orc_mips_emit_prologue (OrcCompiler *compiler)
 }
 
 static void
-orc_mips_emit_epilogue (OrcCompiler *compiler, int stack_size)
+orc_msa_emit_epilogue (OrcCompiler *compiler, int stack_size)
 {
   int i;
 
@@ -450,7 +450,7 @@ get_optimised_instruction_order (OrcCompiler *compiler)
 }
 
 static void
-orc_mips_emit_loop (OrcCompiler *compiler, int unroll)
+orc_msa_emit_loop (OrcCompiler *compiler, int unroll)
 {
   int i, j;
   int iteration_per_loop = 1;
@@ -580,7 +580,7 @@ orc_msa_get_alignment (OrcCompiler *compiler)
 }
 
 static void
-orc_mips_emit_full_loop (OrcCompiler *compiler, OrcMsaRegister counter,
+orc_msa_emit_full_loop (OrcCompiler *compiler, OrcMsaRegister counter,
                          int loop_shift, int loop_label, int alignment, int unroll)
 {
   int saved_loop_shift;
@@ -590,7 +590,7 @@ orc_mips_emit_full_loop (OrcCompiler *compiler, OrcMsaRegister counter,
   compiler->loop_shift = loop_shift;
   saved_alignment = orc_msa_get_alignment (compiler);
   orc_msa_set_alignment (compiler, alignment);
-  orc_mips_emit_loop (compiler, unroll);
+  orc_msa_emit_loop (compiler, unroll);
   orc_msa_set_alignment (compiler, saved_alignment);
   compiler->loop_shift = saved_loop_shift;
   orc_mips_emit_addi (compiler, counter, counter, -1);
@@ -666,7 +666,7 @@ orc_msa_add_strides (OrcCompiler *compiler, int var_size_shift)
 }
 
 void
-orc_compiler_orc_msa_assemble (OrcCompiler *compiler)
+orc_compiler_msa_assemble (OrcCompiler *compiler)
 {
   int stack_size;
   int align_shift = 2; /* this wouldn't work on mips64 */
@@ -679,7 +679,7 @@ orc_compiler_orc_msa_assemble (OrcCompiler *compiler)
 
   var_size_shift = get_shift (compiler->vars[align_var].size);
 
-  stack_size = orc_mips_emit_prologue (compiler);
+  stack_size = orc_msa_emit_prologue (compiler);
 
   /* FIXME: load constants and params */
 #if 0
@@ -775,7 +775,7 @@ usual_case:
 
   /* FIXME: when loop_shift == 0, we only need to emit region1 */
 
-  orc_mips_emit_full_loop (compiler, ORC_MIPS_T0, 0, LABEL_REGION0_LOOP, 0, FALSE);
+  orc_msa_emit_full_loop (compiler, ORC_MIPS_T0, 0, LABEL_REGION0_LOOP, 0, FALSE);
 
   orc_mips_emit_label (compiler, LABEL_REGION1);
   orc_mips_emit_beqz (compiler, ORC_MIPS_T1, LABEL_REGION2);
@@ -835,7 +835,7 @@ usual_case:
     if (label >= ORC_N_LABELS) /* this check works because _get_loop_label() */
        break;                  /* is strictly monotonic and increasing */
 
-    orc_mips_emit_full_loop (compiler, ORC_MIPS_T1, compiler->loop_shift,
+    orc_msa_emit_full_loop (compiler, ORC_MIPS_T1, compiler->loop_shift,
                              label, i | (1 << align_var), TRUE);
 
     /* Jump the other loop versions and go to REGION2 */
@@ -845,7 +845,7 @@ usual_case:
 
 
   /* Fallback loop that works for any alignment combination */
-  orc_mips_emit_full_loop (compiler, ORC_MIPS_T1, compiler->loop_shift,
+  orc_msa_emit_full_loop (compiler, ORC_MIPS_T1, compiler->loop_shift,
                            LABEL_REGION1_LOOP, 1 << align_var, TRUE);
 
 
@@ -855,7 +855,7 @@ usual_case:
   orc_mips_emit_beqz (compiler, ORC_MIPS_T2, LABEL_REGION2_LOOP_END);
   orc_mips_emit_nop (compiler);
 
-  orc_mips_emit_full_loop (compiler, ORC_MIPS_T2, 0, LABEL_REGION2_LOOP, 0, FALSE);
+  orc_msa_emit_full_loop (compiler, ORC_MIPS_T2, 0, LABEL_REGION2_LOOP, 0, FALSE);
   orc_mips_emit_label (compiler, LABEL_REGION2_LOOP_END);
 
   if (compiler->program->is_2d) {
@@ -875,7 +875,7 @@ usual_case:
 
   orc_mips_do_fixups (compiler);
 
-  orc_mips_emit_epilogue (compiler, stack_size);
+  orc_msa_emit_epilogue (compiler, stack_size);
 }
 
 static void

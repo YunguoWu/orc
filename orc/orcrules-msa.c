@@ -638,7 +638,7 @@ orc_msa_rule_splitwb (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 #endif
 
 void
-orc_compiler_orc_msa_register_rules (OrcTarget *target)
+orc_compiler_msa_register_rules (OrcTarget *target)
 {
   OrcRuleSet *rule_set;
 

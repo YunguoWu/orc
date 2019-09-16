@@ -64,7 +64,7 @@ orc_msa_get_cpu_flags (void)
   flags = strsplit(cpuinfo_line, ' ');
   for (f = flags; *f; f++) {
     if (strcmp (*f, "msa") == 0)
-      ret |= ORC_TARGET_MIPS_DSP2;
+      ret |= ORC_TARGET_MIPS_MSA;
     free (*f);
   }
 
