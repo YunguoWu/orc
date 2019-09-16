@@ -90,13 +90,13 @@ ORC_API void orc_msa_emit_loadpl (OrcCompiler *compiler, int dest, int param);
 
 ORC_API void orc_msa_emit_loadpq (OrcCompiler *compiler, int dest, int param);
 
-ORC_API void orc_msa_emit_loadb (OrcCompiler *compiler, int dest, int src);
+ORC_API void orc_msa_emit_loadb (OrcCompiler *compiler, int dest, int src, int offset);
 
-ORC_API void orc_msa_emit_loadw (OrcCompiler *compiler, int dest, int src);
+ORC_API void orc_msa_emit_loadw (OrcCompiler *compiler, int dest, int src, int offset);
 
-ORC_API void orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int src);
+ORC_API void orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int src, int offset);
 
-ORC_API void orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int src);
+ORC_API void orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int src, int offset);
 
 ORC_API void orc_msa_emit_storeb (OrcCompiler *compiler, int dest, int src);
 

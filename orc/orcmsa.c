@@ -221,50 +221,50 @@ orc_msa_emit_loadpq (OrcCompiler *compiler, int dest, int src)
 }
 
 void
-orc_msa_emit_loadb (OrcCompiler *compiler, int dest, int src)
+orc_msa_emit_loadb (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
   int base = compiler->vars[src].ptr_register;
 
   ORC_ASM_CODE(compiler,"  LD.B %s, %d(%s)\n",  //LD.B wd,s10(rs)
-      orc_msa_reg_name (dest), 0, orc_mips_reg_name (base));
-  code = MSA_MI10_INSTRUCTION(0, base, dest, 0x08, DF_B);
+      orc_msa_reg_name (dest), offset, orc_mips_reg_name (base));
+  code = MSA_MI10_INSTRUCTION(offset, base, dest, 0x08, DF_B);
   orc_msa_emit (compiler, code);
 }
 
 void
-orc_msa_emit_loadw (OrcCompiler *compiler, int dest, int src)
+orc_msa_emit_loadw (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
   int base = compiler->vars[src].ptr_register;
 
   ORC_ASM_CODE(compiler,"  LD.H %s, %d(%s)\n",  //LD.H wd,s10(rs)
-      orc_msa_reg_name (dest), 0, orc_mips_reg_name (base));
-  code = MSA_MI10_INSTRUCTION(0, base, dest, 0x08, DF_H);
+      orc_msa_reg_name (dest), offset, orc_mips_reg_name (base));
+  code = MSA_MI10_INSTRUCTION(offset, base, dest, 0x08, DF_H);
   orc_msa_emit (compiler, code);
 }
 
 void
-orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int src)
+orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
   int base = compiler->vars[src].ptr_register;
 
   ORC_ASM_CODE(compiler,"  LD.W %s, %d(%s)\n",  //LD.W wd,s10(rs)
-      orc_msa_reg_name (dest), 0, orc_mips_reg_name (base));
-  code = MSA_MI10_INSTRUCTION(0, base, dest, 0x08, DF_W);
+      orc_msa_reg_name (dest), offset, orc_mips_reg_name (base));
+  code = MSA_MI10_INSTRUCTION(offset, base, dest, 0x08, DF_W);
   orc_msa_emit (compiler, code);
 }
 
 void
-orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int src)
+orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
   int base = compiler->vars[src].ptr_register;
 
   ORC_ASM_CODE(compiler,"  LD.D %s, %d(%s)\n",  //LD.D wd,s10(rs)
-      orc_msa_reg_name (dest), 0, orc_mips_reg_name (base));
-  code = MSA_MI10_INSTRUCTION(0, base, dest, 0x08, DF_D);
+      orc_msa_reg_name (dest), offset, orc_mips_reg_name (base));
+  code = MSA_MI10_INSTRUCTION(offset, base, dest, 0x08, DF_D);
   orc_msa_emit (compiler, code);
 }
 

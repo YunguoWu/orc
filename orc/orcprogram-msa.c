@@ -50,7 +50,8 @@ extern void orc_compiler_orc_msa_register_rules (OrcTarget *target);
 
 static OrcTarget orc_msa_target = {
   "msa",
-#ifdef HAVE_MIPSEL
+////#ifdef HAVE_MIPSEL
+#ifdef _MIPSEL
   TRUE,
 #else
   FALSE,
@@ -880,7 +881,8 @@ usual_case:
 static void
 orc_msa_flush_cache  (OrcCode *code)
 {
-#ifdef HAVE_MIPSEL
+//#ifdef HAVE_MIPSEL
+#ifdef _MIPSEL
   __clear_cache (code->code, code->code + code->code_size);
 #endif
 }

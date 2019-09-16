@@ -82,17 +82,27 @@ msa_rule_loadX (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 {
   OrcVariable *src = compiler->vars + insn->src_args[0];
   OrcVariable *dest = compiler->vars + insn->dest_args[0];
-  int size = ORC_PTR_TO_INT (user);
+  int size = ORC_PTR_TO_INT(user);
+  int offset = 0;
+
+  if(size & 0x10) {
+    offset = compiler->vars[insn->src_args[1]].value.i * src->size;
+
+    //out of s10 range
+    if ((offset > 0x1ff) || (offset < 0x200)) {
+      ORC_PROGRAM_ERROR(compiler,"Offset is out of range 0x%x", offset);
+    }
+  }
 
   //todo
-  if (size == 1) {
-    orc_msa_emit_loadb (compiler, dest->alloc, src->alloc);
-  } else if (size == 2) {
-    orc_msa_emit_loadw (compiler, dest->alloc, src->alloc);
-  } else if (size == 4) {
-    orc_msa_emit_loadl (compiler, dest->alloc, src->alloc);
-  } else if (size == 8) {
-    orc_msa_emit_loadq (compiler, dest->alloc, src->alloc);
+  if ((size & 0xf) == 1) {
+    orc_msa_emit_loadb (compiler, dest->alloc, src->alloc, offset);
+  } else if ((size & 0xf) == 2) {
+    orc_msa_emit_loadw (compiler, dest->alloc, src->alloc, offset);
+  } else if ((size & 0xf) == 4) {
+    orc_msa_emit_loadl (compiler, dest->alloc, src->alloc, offset);
+  } else if ((size & 0xf) == 8) {
+    orc_msa_emit_loadq (compiler, dest->alloc, src->alloc, offset);
   } else {
     ORC_PROGRAM_ERROR(compiler,"unimplemented");
   }
@@ -638,17 +648,17 @@ orc_compiler_orc_msa_register_rules (OrcTarget *target)
   orc_rule_register (rule_set, "loadpw", msa_rule_loadpX, (void *)2);
   orc_rule_register (rule_set, "loadpl", msa_rule_loadpX, (void *)4);
   orc_rule_register (rule_set, "loadpq", msa_rule_loadpX, (void *)8);
-  orc_rule_register (rule_set, "loadb", msa_rule_loadX, (void *)0);
-  orc_rule_register (rule_set, "loadw", msa_rule_loadX, (void *)0);
-  orc_rule_register (rule_set, "loadl", msa_rule_loadX, (void *)0);
-  orc_rule_register (rule_set, "loadq", msa_rule_loadX, (void *)0);
-  orc_rule_register (rule_set, "loadoffb", msa_rule_loadX, (void *)1);
-  orc_rule_register (rule_set, "loadoffw", msa_rule_loadX, (void *)1);
-  orc_rule_register (rule_set, "loadoffl", msa_rule_loadX, (void *)1);
-  orc_rule_register (rule_set, "storeb", msa_rule_storeX, (void *)0);
-  orc_rule_register (rule_set, "storew", msa_rule_storeX, (void *)0);
-  orc_rule_register (rule_set, "storel", msa_rule_storeX, (void *)0);
-  orc_rule_register (rule_set, "storeq", msa_rule_storeX, (void *)0);
+  orc_rule_register (rule_set, "loadb", msa_rule_loadX, (void *)1);
+  orc_rule_register (rule_set, "loadw", msa_rule_loadX, (void *)2);
+  orc_rule_register (rule_set, "loadl", msa_rule_loadX, (void *)4);
+  orc_rule_register (rule_set, "loadq", msa_rule_loadX, (void *)8);
+  orc_rule_register (rule_set, "loadoffb", msa_rule_loadX, (void *)0x11);
+  orc_rule_register (rule_set, "loadoffw", msa_rule_loadX, (void *)0x12);
+  orc_rule_register (rule_set, "loadoffl", msa_rule_loadX, (void *)0x14);
+  orc_rule_register (rule_set, "storeb", msa_rule_storeX, (void *)1);
+  orc_rule_register (rule_set, "storew", msa_rule_storeX, (void *)2);
+  orc_rule_register (rule_set, "storel", msa_rule_storeX, (void *)4);
+  orc_rule_register (rule_set, "storeq", msa_rule_storeX, (void *)8);
 
 #if 0
   orc_rule_register (rule_set, "loadl", orc_msa_rule_load, (void *) 2);
