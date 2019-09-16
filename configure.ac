@@ -145,7 +145,7 @@ AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LIBS)
 
 AC_ARG_ENABLE(backend,
-  AC_HELP_STRING([--enable-backend],[sse,mmx,neon,mips,all (default all)]),
+  AC_HELP_STRING([--enable-backend],[sse,mmx,neon,mips,msa,all (default all)]),
     [], [enable_backend=all])
 case "${enable_backend}" in
   sse)
@@ -177,6 +177,10 @@ case "${enable_backend}" in
     ENABLE_BACKEND_MIPS=yes
     AC_DEFINE(ENABLE_BACKEND_MIPS, 1, [Enable MIPS backend])
     ;;
+  msa)
+    ENABLE_BACKEND_MSA=yes
+    AC_DEFINE(ENABLE_BACKEND_MSA, 1, [Enable MSA backend])
+    ;;
   all|auto)
     ENABLE_BACKEND_SSE=yes
     AC_DEFINE(ENABLE_BACKEND_SSE, 1, [Enable SSE backend])
@@ -192,6 +196,8 @@ case "${enable_backend}" in
     AC_DEFINE(ENABLE_BACKEND_C64X, 1, [Enable c64x backend])
     ENABLE_BACKEND_MIPS=yes
     AC_DEFINE(ENABLE_BACKEND_MIPS, 1, [Enable MIPS backend])
+    ENABLE_BACKEND_MSA=yes
+    AC_DEFINE(ENABLE_BACKEND_MSA, 1, [Enable MSA backend])
     ;;
 esac
 AM_CONDITIONAL(ENABLE_BACKEND_SSE, test "x$ENABLE_BACKEND_SSE" = "xyes")
@@ -201,6 +207,7 @@ AM_CONDITIONAL(ENABLE_BACKEND_NEON, test "x$ENABLE_BACKEND_NEON" = "xyes")
 AM_CONDITIONAL(ENABLE_BACKEND_ARM, test "x$ENABLE_BACKEND_ARM" = "xyes")
 AM_CONDITIONAL(ENABLE_BACKEND_C64X, test "x$ENABLE_BACKEND_C64X" = "xyes")
 AM_CONDITIONAL(ENABLE_BACKEND_MIPS, test "x$ENABLE_BACKEND_MIPS" = "xyes")
+AM_CONDITIONAL(ENABLE_BACKEND_MSA, test "x$ENABLE_BACKEND_MSA" = "xyes")
 
 dnl building of tests
 AC_ARG_ENABLE(tests,
@@ -292,6 +299,7 @@ Configuration
 	Enable NEON backend        : ${ENABLE_BACKEND_NEON}
 	Enable C64X backend        : ${ENABLE_BACKEND_C64X}
 	Enable MIPS backend        : ${ENABLE_BACKEND_MIPS}
+	Enable MSA backend         : ${ENABLE_BACKEND_MSA}
 
 	Building test apps         : ${BUILD_TESTS}
 "

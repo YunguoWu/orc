@@ -39,6 +39,7 @@ ORC_BEGIN_DECLS
 typedef enum {
   ORC_TARGET_MIPS_FRAME_POINTER = (1<<0),
   ORC_TARGET_MIPS_DSP2          = (1<<1),
+  ORC_TARGET_MIPS_MSA          = (1<<2)
 } OrcTargetMipsFlags;
 
 typedef enum {
@@ -78,6 +79,9 @@ typedef enum {
 
 ORC_API
 unsigned long orc_mips_get_cpu_flags (void);
+
+ORC_API
+const char * orc_mips_reg_name (int reg);
 
 ORC_API
 void orc_mips_emit_label (OrcCompiler *compiler, unsigned int label);
