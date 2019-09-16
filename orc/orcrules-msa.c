@@ -96,13 +96,13 @@ msa_rule_loadX (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 
   //todo
   if ((size & 0xf) == 1) {
-    orc_msa_emit_loadb (compiler, dest->alloc, src->alloc, offset);
+    orc_msa_emit_loadb (compiler, dest->alloc, src->ptr_register, offset);
   } else if ((size & 0xf) == 2) {
-    orc_msa_emit_loadw (compiler, dest->alloc, src->alloc, offset);
+    orc_msa_emit_loadw (compiler, dest->alloc, src->ptr_register, offset);
   } else if ((size & 0xf) == 4) {
-    orc_msa_emit_loadl (compiler, dest->alloc, src->alloc, offset);
+    orc_msa_emit_loadl (compiler, dest->alloc, src->ptr_register, offset);
   } else if ((size & 0xf) == 8) {
-    orc_msa_emit_loadq (compiler, dest->alloc, src->alloc, offset);
+    orc_msa_emit_loadq (compiler, dest->alloc, src->ptr_register, offset);
   } else {
     ORC_PROGRAM_ERROR(compiler,"unimplemented");
   }
@@ -115,21 +115,41 @@ msa_rule_storeX (OrcCompiler *compiler, void *user, OrcInstruction *insn)
   OrcVariable *src = compiler->vars + insn->src_args[0];
   OrcVariable *dest = compiler->vars + insn->dest_args[0];
   int size = ORC_PTR_TO_INT (user);
+  int offset = 0;
 
   //todo
   if (size == 1) {
-    orc_msa_emit_storeb (compiler, dest->alloc, src->alloc);
+    orc_msa_emit_storeb (compiler, dest->ptr_register, src->alloc, offset);
   } else if (size == 2) {
-    orc_msa_emit_storew (compiler, dest->alloc, src->alloc);
+    orc_msa_emit_storew (compiler, dest->ptr_register, src->alloc, offset);
   } else if (size == 4) {
-    orc_msa_emit_storel (compiler, dest->alloc, src->alloc);
+    orc_msa_emit_storel (compiler, dest->ptr_register, src->alloc, offset);
   } else if (size == 8) {
-    orc_msa_emit_storeq (compiler, dest->alloc, src->alloc);
+    orc_msa_emit_storeq (compiler, dest->ptr_register, src->alloc, offset);
   } else {
     ORC_PROGRAM_ERROR(compiler,"unimplemented");
   }
 }
 
+static void
+orc_msa_rule_addssw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_adds_s_h (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_addusw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_adds_u_h (compiler, dest, src1, src2);
+}
 
 #if 0
 void
@@ -659,6 +679,9 @@ orc_compiler_msa_register_rules (OrcTarget *target)
   orc_rule_register (rule_set, "storew", msa_rule_storeX, (void *)2);
   orc_rule_register (rule_set, "storel", msa_rule_storeX, (void *)4);
   orc_rule_register (rule_set, "storeq", msa_rule_storeX, (void *)8);
+
+  orc_rule_register (rule_set, "addssw", orc_msa_rule_addssw, NULL);
+  orc_rule_register (rule_set, "addusw", orc_msa_rule_addusw, NULL);
 
 #if 0
   orc_rule_register (rule_set, "loadl", orc_msa_rule_load, (void *) 2);

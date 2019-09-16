@@ -23,7 +23,7 @@ void _orc_compiler_init(void);
 
 /**
  * orc_init:
- * 
+ *
  * This function initializes the Orc library, and
  * should be called before using any other Orc function.
  * Subsequent calls to this function have no effect.
@@ -62,6 +62,9 @@ orc_init (void)
 #endif
 #ifdef ENABLE_BACKEND_MIPS
       orc_mips_init();
+#endif
+#ifdef ENABLE_BACKEND_MSA
+      orc_msa_init();
 #endif
 
       inited = TRUE;

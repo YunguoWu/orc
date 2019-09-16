@@ -20,6 +20,7 @@ void orc_neon_init (void);
 void orc_c64x_init (void);
 void orc_c64x_c_init (void);
 void orc_mips_init (void);
+void orc_msa_init (void);
 
 typedef struct _OrcCodeChunk OrcCodeChunk;
 

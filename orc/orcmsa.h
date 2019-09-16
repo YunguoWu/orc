@@ -98,13 +98,18 @@ ORC_API void orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int src, int o
 
 ORC_API void orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int src, int offset);
 
-ORC_API void orc_msa_emit_storeb (OrcCompiler *compiler, int dest, int src);
+ORC_API void orc_msa_emit_storeb (OrcCompiler *compiler, int dest, int src, int offset);
 
-ORC_API void orc_msa_emit_storew (OrcCompiler *compiler, int dest, int src);
+ORC_API void orc_msa_emit_storew (OrcCompiler *compiler, int dest, int src, int offset);
 
-ORC_API void orc_msa_emit_storel (OrcCompiler *compiler, int dest, int src);
+ORC_API void orc_msa_emit_storel (OrcCompiler *compiler, int dest, int src, int offset);
 
-ORC_API void orc_msa_emit_storeq (OrcCompiler *compiler, int dest, int src);
+ORC_API void orc_msa_emit_storeq (OrcCompiler *compiler, int dest, int src, int offset);
+
+ORC_API void orc_msa_emit_adds_s_h (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_adds_u_h (OrcCompiler *compiler, int dest, int src1, int src2);
+
 
 #endif /* ORC_ENABLE_UNSTABLE_API */
 

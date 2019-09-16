@@ -117,6 +117,9 @@ orc_compiler_msa_init (OrcCompiler *compiler)
 
   for (i=ORC_GP_REG_BASE; i<ORC_GP_REG_BASE+32; i++)
     compiler->valid_regs[i] = 1;
+  for(i=ORC_VEC_REG_BASE+0;i<ORC_VEC_REG_BASE+32;i++){
+    compiler->valid_regs[i] = 1;
+  }
 
   compiler->valid_regs[ORC_MIPS_ZERO] = 0; /* always 0 */
   compiler->valid_regs[ORC_MIPS_AT] = 0; /* we shouldn't touch that (assembler
@@ -147,23 +150,31 @@ orc_compiler_msa_init (OrcCompiler *compiler)
   compiler->save_regs[ORC_MIPS_V1] = 1;
   for (i=ORC_MIPS_S0; i<= ORC_MIPS_S7; i++)
     compiler->save_regs[i] = 1;
+  /*FIXME: */
+  for(i=0;i<8;i++) {
+    compiler->save_regs[ORC_VEC_REG_BASE+i] = 1;
+  }
 
   switch (compiler->max_var_size) {
-  case 1:
-    compiler->loop_shift = 2;
-    break;
-  case 2:
-    compiler->loop_shift = 1;
-    break;
-  case 4:
-    compiler->loop_shift = 0;
-    break;
-  default:
-    ORC_ERROR("unhandled variable size %d", compiler->max_var_size);
+    case 1:
+      compiler->loop_shift = 4;
+      break;
+    case 2:
+      compiler->loop_shift = 3;
+      break;
+    case 4:
+      compiler->loop_shift = 2;
+      break;
+    case 8:
+      compiler->loop_shift = 1;
+      break;
+    default:
+      ORC_ERROR("unhandled variable size %d", compiler->max_var_size);
   }
 
   /* Empirical evidence in a colorspace conversion benchmark shows that 3 is
    * the best unroll shift. */
+  /*FIXME: */
   compiler->unroll_shift = 3;
   compiler->unroll_index = 0;
 
@@ -207,10 +218,16 @@ orc_msa_emit_prologue (OrcCompiler *compiler)
   orc_compiler_append_code(compiler,"%s:\n", compiler->program->name);
 
   /* push registers we need to save */
-  for(i=0; i<32; i++)
+  for(i=0; i<32; i++) {
     if (compiler->used_regs[ORC_GP_REG_BASE + i] &&
         compiler->save_regs[ORC_GP_REG_BASE + i])
       stack_size += 4;
+
+    /*FIXME: push vregs*/
+    if (compiler->used_regs[ORC_VEC_REG_BASE + i] &&
+        compiler->save_regs[ORC_VEC_REG_BASE + i])
+      stack_size += 16;
+  }
 
   if (stack_size) {
     orc_mips_emit_addiu (compiler, ORC_MIPS_SP, ORC_MIPS_SP, -stack_size);
@@ -232,6 +249,16 @@ orc_msa_emit_prologue (OrcCompiler *compiler)
             stack_increment +=4;
       }
     }
+
+    /*FIXME: push vregs*/
+    for(i=0; i<32; i++){
+      if (compiler->used_regs[ORC_VEC_REG_BASE + i] &&
+          compiler->save_regs[ORC_VEC_REG_BASE + i]) {
+        orc_msa_emit_storel (compiler, ORC_VEC_REG_BASE+i,
+                          ORC_MIPS_SP, stack_increment);
+            stack_increment +=16;
+      }
+    }
   }
 
   return stack_size;
@@ -247,6 +274,16 @@ orc_msa_emit_epilogue (OrcCompiler *compiler, int stack_size)
     unsigned int stack_increment = 0;
     if (compiler->use_frame_pointer)
       stack_increment = 8;
+
+    /*FIXME: pop vregs*/
+    for(i=0; i<32; i++){
+      if (compiler->used_regs[ORC_VEC_REG_BASE + i] &&
+          compiler->save_regs[ORC_VEC_REG_BASE + i]) {
+        orc_msa_emit_loadl (compiler, ORC_VEC_REG_BASE+i,
+                          ORC_MIPS_SP, stack_increment);
+            stack_increment +=16;
+      }
+    }
 
     for(i=0; i<32; i++){
       if (compiler->used_regs[ORC_GP_REG_BASE + i] &&
@@ -288,7 +325,12 @@ orc_msa_load_constants_inner (OrcCompiler *compiler)
             var->ptr_register,
             compiler->exec_reg, ORC_MIPS_EXECUTOR_OFFSET_ARRAYS(i));
         break;
+      case ORC_VAR_TYPE_ACCUMULATOR:
+        break;
+      case ORC_VAR_TYPE_TEMP:
+        break;
       default:
+        ORC_PROGRAM_ERROR(compiler,"bad vartype");
         break;
     }
 
@@ -736,7 +778,7 @@ orc_compiler_msa_assemble (OrcCompiler *compiler)
      move $t2, $0
      lw   $t0, OFFSET_N($a0)
      beqz $0, LABEL_REGION0_LOOP
-usual_case:
+     usual_case:
    */
   orc_mips_emit_conditional_branch_with_offset (compiler, ORC_MIPS_BGEZ,
                                                 ORC_MIPS_T2, ORC_MIPS_ZERO,

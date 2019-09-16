@@ -1173,3 +1173,118 @@ orc_test_gcc_compile_mips (OrcProgram *p)
   return ORC_TEST_OK;
 }
 
+#if (__mips_isa_rev >= 6)
+#define MSA_PREFIX "mips-img-linux-gnu-"
+#else
+#define MSA_PREFIX "mips-mti-linux-gnu-"
+#endif
+
+OrcTestResult
+orc_test_gcc_compile_msa (OrcProgram *p)
+{
+  char cmd[400];
+  char *base;
+  char source_filename[100];
+  char obj_filename[100];
+  char dis_filename[100];
+  char dump_filename[100];
+  char dump_dis_filename[100];
+  int ret;
+  FILE *file;
+  OrcCompileResult result;
+  OrcTarget *target;
+  unsigned int flags;
+
+  base = "temp-orc-test";
+
+  sprintf(source_filename, "%s-source.s", base);
+  sprintf(obj_filename, "%s.o", base);
+  sprintf(dis_filename, "%s-source.dis", base);
+  sprintf(dump_filename, "%s-dump.bin", base);
+  sprintf(dump_dis_filename, "%s-dump.dis", base);
+
+  target = orc_target_get_by_name ("msa");
+  flags = orc_target_get_default_flags (target);
+  flags |= ORC_TARGET_CLEAN_COMPILE;
+
+  result = orc_program_compile_full (p, target, flags);
+  if (!ORC_COMPILE_RESULT_IS_SUCCESSFUL(result)) {
+    /* printf ("  no code generated: %s\n", orc_program_get_error (p)); */
+    return ORC_TEST_INDETERMINATE;
+  }
+
+  fflush (stdout);
+
+  file = fopen (source_filename, "w");
+  fprintf(file, "%s", orc_target_get_preamble (target));
+  fprintf(file, "%s", orc_program_get_asm_code (p));
+  fclose (file);
+
+  file = fopen (dump_filename, "w");
+  ret = fwrite(p->orccode->code, p->orccode->code_size, 1, file);
+  fclose (file);
+
+#if (__mips == 64)
+#if (__mips_isa_rev >= 6)
+  sprintf (cmd, MSA_PREFIX "gcc -mips32r6 -EL -msa -Wall "
+      "-c %s -o %s", source_filename, obj_filename);
+#else
+  sprintf (cmd, MSA_PREFIX "gcc -mips32r5 -EL -msa -Wall "
+      "-c %s -o %s", source_filename, obj_filename);
+#endif /*__mips_isa_rev >= 6*/
+#else
+#if (__mips_isa_rev >= 6)
+  sprintf (cmd, MSA_PREFIX "gcc -mips32r6 -EL -msa -Wall "
+      "-c %s -o %s", source_filename, obj_filename);
+#else
+  sprintf (cmd, MSA_PREFIX "gcc -mips32r5 -EL -msa -Wall "
+      "-c %s -o %s", source_filename, obj_filename);
+#endif /*__mips_isa_rev < 6*/
+#endif
+  ret = system (cmd);
+  if (ret != 0) {
+    ORC_ERROR ("mips gcc failed");
+    return ORC_TEST_INDETERMINATE;
+  }
+
+  sprintf (cmd, MSA_PREFIX "objdump -Dr -j .text %s >%s", obj_filename, dis_filename);
+  ret = system (cmd);
+  if (ret != 0) {
+    ORC_ERROR ("objdump failed");
+    return ORC_TEST_INDETERMINATE;
+  }
+
+  sprintf (cmd, MSA_PREFIX "objcopy -I binary "
+      "-O elf32-tradlittlemips -B mips:isa32r2 "
+      "--rename-section .data=.text "
+      "--redefine-sym _binary_temp_orc_test_dump_bin_start=%s "
+      "%s %s", p->name, dump_filename, obj_filename);
+  ret = system (cmd);
+  if (ret != 0) {
+    printf("objcopy failed\n");
+    return ORC_TEST_INDETERMINATE;
+  }
+
+  sprintf (cmd, MSA_PREFIX "objdump -Dr %s >%s", obj_filename, dump_dis_filename);
+  ret = system (cmd);
+  if (ret != 0) {
+    printf("objdump failed\n");
+    return ORC_TEST_INDETERMINATE;
+  }
+
+  sprintf (cmd, "diff -u %s %s", dis_filename, dump_dis_filename);
+  ret = system (cmd);
+  if (ret != 0) {
+    printf("diff failed\n");
+    return ORC_TEST_FAILED;
+  }
+
+  remove (source_filename);
+  remove (obj_filename);
+  remove (dis_filename);
+  remove (dump_filename);
+  remove (dump_dis_filename);
+
+  return ORC_TEST_OK;
+}
+
