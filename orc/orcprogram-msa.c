@@ -175,7 +175,7 @@ orc_compiler_msa_init (OrcCompiler *compiler)
   /* Empirical evidence in a colorspace conversion benchmark shows that 3 is
    * the best unroll shift. */
   /*FIXME: */
-  compiler->unroll_shift = 3;
+  compiler->unroll_shift = 0;
   compiler->unroll_index = 0;
 
   for(i=0;i<compiler->n_insns;i++){
@@ -590,6 +590,10 @@ get_shift (int size)
       return 1;
     case 4:
       return 2;
+#if (__mips == 64)
+    case 8:
+      return 3;
+#endif
     default:
       ORC_ERROR("bad size %d", size);
   }

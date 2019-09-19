@@ -75,6 +75,7 @@ msa_rule_loadpX (OrcCompiler *compiler, void *user, OrcInstruction *insn)
       ORC_PROGRAM_ERROR(compiler,"unimplemented");
     }
   }
+  compiler->vars[insn->src_args[0]].update_type = 2;
 }
 
 static void
@@ -106,6 +107,7 @@ msa_rule_loadX (OrcCompiler *compiler, void *user, OrcInstruction *insn)
   } else {
     ORC_PROGRAM_ERROR(compiler,"unimplemented");
   }
+  compiler->vars[insn->src_args[0]].update_type = 2;
 }
 
 
@@ -129,6 +131,7 @@ msa_rule_storeX (OrcCompiler *compiler, void *user, OrcInstruction *insn)
   } else {
     ORC_PROGRAM_ERROR(compiler,"unimplemented");
   }
+  compiler->vars[insn->dest_args[0]].update_type = 2;
 }
 
 static void
