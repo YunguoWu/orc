@@ -1,5 +1,5 @@
 
-noinst_PROGRAMS = 
+noinst_PROGRAMS = testmsa
 if CROSS_COMPILING
 else
 noinst_PROGRAMS += example1 example2 example3 mt19937ar
@@ -7,7 +7,8 @@ noinst_PROGRAMS += example1 example2 example3 mt19937ar
 BUILT_SOURCES = example1orc.c example1orc.h \
 	example2orc.c example2orc.h \
 	example3orc.c example3orc.h \
-	mt19937arorc.c mt19937arorc.h
+	mt19937arorc.c mt19937arorc.h \
+	testmsaorc.c testmsaorc.h
 endif
 
 if ENABLE_BACKEND_MMX
@@ -17,12 +18,13 @@ endif
 AM_LDFLAGS = $(ORC_LIBS)
 AM_CFLAGS = $(ORC_CFLAGS)
 
-EXTRA_DIST = example1orc.orc example2orc.orc example3orc.orc mt19937arorc.orc
+EXTRA_DIST = example1orc.orc example2orc.orc example3orc.orc mt19937arorc.orc testmsaorc.orc
 
 CLEANFILES = example1orc.c example1orc.h \
 	example2orc.c example2orc.h \
 	example3orc.c example3orc.h \
-	mt19937arorc.c mt19937arorc.h
+	mt19937arorc.c mt19937arorc.h \
+	testmsaorc.c testmsaorc.h
 
 example1_SOURCES = example1.c
 nodist_example1_SOURCES = example1orc.c example1orc.h
@@ -32,6 +34,8 @@ example3_SOURCES = example3.c
 nodist_example3_SOURCES = example3orc.c example3orc.h
 mt19937ar_SOURCES = mt19937ar.c
 nodist_mt19937ar_SOURCES = mt19937arorc.c mt19937arorc.h
+testmsa_SOURCES = testmsa.c
+nodist_testmsa_SOURCES = testmsaorc.c testmsaorc.h
 
 orcc_v_gen = $(orcc_v_gen_$(V))
 orcc_v_gen_ = $(orcc_v_gen_$(AM_DEFAULT_VERBOSITY))
@@ -61,4 +65,9 @@ mt19937arorc.c: $(srcdir)/mt19937arorc.orc
 mt19937arorc.h: $(srcdir)/mt19937arorc.orc
 	$(orcc_v_gen)$(top_builddir)/tools/orcc$(EXEEXT) --header -o mt19937arorc.h $(srcdir)/mt19937arorc.orc
 
+testmsaorc.c: $(srcdir)/testmsaorc.orc
+	$(orcc_v_gen) qemu-mipsel_P5600 $(top_builddir)/tools/orcc$(EXEEXT) --target msa --implementation -o testmsaorc.c $(srcdir)/testmsaorc.orc
+
+testmsaorc.h: $(srcdir)/testmsaorc.orc
+	$(orcc_v_gen) qemu-mipsel_P5600 $(top_builddir)/tools/orcc$(EXEEXT) --target msa --header -o testmsaorc.h $(srcdir)/testmsaorc.orc
 
