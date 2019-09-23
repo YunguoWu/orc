@@ -787,7 +787,7 @@ orc_compiler_msa_assemble (OrcCompiler *compiler)
   /*$t2 = n * var_size & 0xf, get unassigned parts*/
   orc_mips_emit_move (compiler, ORC_MIPS_T2, ORC_MIPS_T0);
 
-//if $t0=0, skip LABEL_REGION0_LOOP, goto usual_case (.Laudio_add_s162 , = LABEL_REGION1)
+  /*if $t0=0, skip LABEL_REGION0_LOOP, goto LABEL_REGION1_LOOP directly */
   orc_mips_emit_conditional_branch_with_offset (compiler, ORC_MIPS_BEQ,
                                                 ORC_MIPS_T0, ORC_MIPS_ZERO,
                                                 12);  /*goto LABEL_REGION1_LOOP*/
@@ -796,8 +796,6 @@ orc_compiler_msa_assemble (OrcCompiler *compiler)
   orc_mips_emit_nop (compiler);
 
   /* if ($t0 == 0) goto REGION1 */
-  ////orc_mips_emit_beqz (compiler, ORC_MIPS_T0, LABEL_REGION1);
-//if ($t1 != 0) goto REGION1
   orc_mips_emit_bnez (compiler, ORC_MIPS_T1, LABEL_REGION1_LOOP);
   orc_mips_emit_nop (compiler);
 
