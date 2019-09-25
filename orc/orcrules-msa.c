@@ -119,17 +119,107 @@ msa_rule_storeX (OrcCompiler *compiler, void *user, OrcInstruction *insn)
   int size = ORC_PTR_TO_INT (user);
   int offset = 0;
 
-  //todo
-  if (size == 1) {
-    orc_msa_emit_storeb (compiler, dest->ptr_register, src->alloc, offset);
-  } else if (size == 2) {
-    orc_msa_emit_storew (compiler, dest->ptr_register, src->alloc, offset);
-  } else if (size == 4) {
-    orc_msa_emit_storel (compiler, dest->ptr_register, src->alloc, offset);
-  } else if (size == 8) {
-    orc_msa_emit_storeq (compiler, dest->ptr_register, src->alloc, offset);
-  } else {
-    ORC_PROGRAM_ERROR(compiler,"unimplemented");
+  if (size & (1<<31)) /*Handle unaligned parts in LABLE REGION0*/
+  {
+    /* Used GP_REG:
+       ORC_MIPS_T0 for tail length, ORC_MIPS_T5 for ptr_reg,
+       ORC_MIPS_T6 for counter, ORC_MIPS_T7 for copy value from VREG
+     if $t0 >=8  //orc_mips_emit_addiu (compiler, ORC_MIPS_T6, ORC_MIPS_ZERO, 8);
+                 //orc_mips_emit_conditional_branch_with_offset (compiler, ORC_MIPS_BGEZ, ORC_MIPS_T2, ORC_MIPS_ZERO, 24);
+                 //orc_mips_emit (compiler, MIPS_IMMEDIATE_INSTRUCTION(ORC_MIPS_BLEZ, rs, rt, offset));
+       COPY_S.W ORC_MIPS_T7,ws[n]
+       orc_mips_emit_sw (compiler, dest, ORC_MIPS_T7, offset);
+       orc_mips_emit_sw (compiler, dest, ORC_MIPS_T7, offset+4);
+       orc_mips_emit_addi (compiler, ORC_MIPS_T0, ORC_MIPS_T0, -8);
+     if $t0 >=4
+       COPY_S.W ORC_MIPS_T7,ws[n]
+       orc_mips_emit_sw (compiler, dest, ORC_MIPS_T7, offset);
+       orc_mips_emit_addi (compiler, ORC_MIPS_T0, ORC_MIPS_T0, -4);
+     if $t0 >=2
+       COPY_S.H ORC_MIPS_T7,ws[n]
+       orc_mips_emit_sw (compiler, dest, ORC_MIPS_T7, offset);
+       orc_mips_emit_addi (compiler, ORC_MIPS_T0, ORC_MIPS_T0, -2);
+     if $t0 >=1
+       COPY_S.W ORC_MIPS_T7,ws[n]
+       orc_mips_emit_sw (compiler, dest, ORC_MIPS_T7, offset);
+       orc_mips_emit_addi (compiler, ORC_MIPS_T0, ORC_MIPS_T0, -1);
+    */
+
+    orc_mips_emit_move (compiler, ORC_MIPS_T5, dest->ptr_register);
+    orc_mips_emit_move (compiler, ORC_MIPS_T6, ORC_MIPS_T0);
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T6, ORC_MIPS_T6, -8);
+    orc_mips_emit_conditional_branch_with_offset (compiler,
+                                            ORC_MIPS_BLTZ,
+                                            ORC_MIPS_T6,
+                                            ORC_MIPS_ZERO,
+                                            32); /*n<8, goto Process2*/
+    orc_mips_emit_nop (compiler);
+
+    /*Process1: 8 bytes*/
+    orc_msa_emit_copy_u_w(compiler, ORC_MIPS_T7, src->alloc, 0);
+    orc_mips_emit_sw (compiler, ORC_MIPS_T7, ORC_MIPS_T5, offset);
+    orc_msa_emit_copy_u_w(compiler, ORC_MIPS_T7, src->alloc, 1);
+    orc_mips_emit_sw (compiler, ORC_MIPS_T7, ORC_MIPS_T5, offset+4);
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T0, ORC_MIPS_T0, -8);     /*update counter*/
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T5, ORC_MIPS_T5, 8);      /*update ptr*/
+    orc_msa_emit_shf_w(compiler, src->alloc, src->alloc, 0b01001110); /*3|2|1|0 => 1|0|3|2*/
+
+    /*Process2: 4 bytes*/
+    orc_mips_emit_move (compiler, ORC_MIPS_T6, ORC_MIPS_T0);
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T6, ORC_MIPS_T6, -4);
+    orc_mips_emit_conditional_branch_with_offset (compiler,
+                                            ORC_MIPS_BLTZ,
+                                            ORC_MIPS_T6,
+                                            ORC_MIPS_ZERO,
+                                            24); /*n<4, goto Process3*/
+    orc_mips_emit_nop (compiler);
+    orc_msa_emit_copy_u_w(compiler, ORC_MIPS_T7, src->alloc, 0);
+    orc_mips_emit_sw (compiler, ORC_MIPS_T7, ORC_MIPS_T5, offset);
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T0, ORC_MIPS_T0, -4);
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T5, ORC_MIPS_T5, 4);
+    orc_msa_emit_shf_h(compiler, src->alloc, src->alloc, 0b01001110); /*3|2|1|0 => 1|0|3|2*/
+
+    /*Process3: 2 bytes*/
+    orc_mips_emit_move (compiler, ORC_MIPS_T6, ORC_MIPS_T0);
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T6, ORC_MIPS_T6, -2);
+    orc_mips_emit_conditional_branch_with_offset (compiler,
+                                            ORC_MIPS_BLTZ,
+                                            ORC_MIPS_T6,
+                                            ORC_MIPS_ZERO,
+                                            24); /*n<2, goto Process4*/
+    orc_mips_emit_nop (compiler);
+    orc_msa_emit_copy_u_h(compiler, ORC_MIPS_T7, src->alloc, 0);
+    orc_mips_emit_sh (compiler, ORC_MIPS_T7, ORC_MIPS_T5, offset);
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T0, ORC_MIPS_T0, -2);
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T5, ORC_MIPS_T5, 2);
+    orc_msa_emit_shf_b(compiler, src->alloc, src->alloc, 0b01001110); /*3|2|1|0 => 1|0|3|2*/
+
+    /*Process4: 1 byte*/
+    orc_mips_emit_conditional_branch_with_offset (compiler,
+                                            ORC_MIPS_BLEZ,
+                                            ORC_MIPS_T0,
+                                            ORC_MIPS_ZERO,
+                                            24); /*n<=0, goto next*/
+    orc_mips_emit_nop (compiler);
+    orc_msa_emit_copy_u_b(compiler, ORC_MIPS_T7, src->alloc, 0);
+    orc_mips_emit_sh (compiler, ORC_MIPS_T7, ORC_MIPS_T5, offset);
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T0, ORC_MIPS_T0, -1);
+    orc_mips_emit_addiu (compiler, ORC_MIPS_T5, ORC_MIPS_T5, 1);
+    orc_mips_emit_nop (compiler);
+  }
+  else {
+    //todo
+    if ((size & 0xf) == 1) {
+      orc_msa_emit_storeb (compiler, dest->ptr_register, src->alloc, offset);
+    } else if ((size & 0xf) == 2) {
+      orc_msa_emit_storew (compiler, dest->ptr_register, src->alloc, offset);
+    } else if ((size & 0xf) == 4) {
+      orc_msa_emit_storel (compiler, dest->ptr_register, src->alloc, offset);
+    } else if ((size & 0xf) == 8) {
+      orc_msa_emit_storeq (compiler, dest->ptr_register, src->alloc, offset);
+    } else {
+      ORC_PROGRAM_ERROR(compiler,"unimplemented");
+    }
   }
   compiler->vars[insn->dest_args[0]].update_type = 2;
 }

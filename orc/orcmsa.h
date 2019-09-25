@@ -110,6 +110,18 @@ ORC_API void orc_msa_emit_adds_s_h (OrcCompiler *compiler, int dest, int src1, i
 
 ORC_API void orc_msa_emit_adds_u_h (OrcCompiler *compiler, int dest, int src1, int src2);
 
+ORC_API void orc_msa_emit_copy_u_b (OrcCompiler *compiler, int dest, int src1, int n);
+
+ORC_API void orc_msa_emit_copy_u_h (OrcCompiler *compiler, int dest, int src1, int n);
+
+ORC_API void orc_msa_emit_copy_u_w (OrcCompiler *compiler, int dest, int src1, int n);
+
+ORC_API void orc_msa_emit_shf_b (OrcCompiler *compiler, int dest, int src1, int i8);
+
+ORC_API void orc_msa_emit_shf_h (OrcCompiler *compiler, int dest, int src1, int i8);
+
+ORC_API void orc_msa_emit_shf_w (OrcCompiler *compiler, int dest, int src1, int i8);
+
 
 #endif /* ORC_ENABLE_UNSTABLE_API */
 

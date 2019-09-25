@@ -75,25 +75,26 @@
              | ((wd)-ORC_VEC_REG_BASE) << 6 \
              | ((mopcode) & 0x3f))
 
+/*ELM instruction format: 011110 operation df/n ws wd minor_opcode*/
+#define MSA_ELM_INSTRUCTION(operation,dfn,ws,wd,mopcode) \
+            (0b011110 << 26 \
+             | ((operation) & 0x0f) << 22 \
+             | (dfn)  << 16 \
+             | ((ws)-ORC_VEC_REG_BASE) << 11 \
+             | ((wd)-ORC_VEC_REG_BASE) << 6 \
+             | ((mopcode) & 0x3f))
 
-#define MSA_BINARY_INSTRUCTION(opcode,rs,rt,rd,sa,function) \
-    (((opcode) & 0x3f) << 26 \
-     | ((rs)-ORC_GP_REG_BASE) << 21 \
-     | ((rt)-ORC_GP_REG_BASE) << 16 \
-     | ((rd)-ORC_GP_REG_BASE) << 11 \
-     | ((sa) & 0x1f) << 6 \
-     | ((function) & 0x3f))
+/*I10 instruction format: 011110 df i8 ws wd minor_opcode*/
+#define MSA_I8_INSTRUCTION(df,i8,ws,wd,mopcode) \
+        (0b011110 << 26 \
+         | (df) << 24 \
+         | (i8) << 16 \
+         | ((ws)-ORC_VEC_REG_BASE) << 11 \
+         | ((wd)-ORC_VEC_REG_BASE) << 6 \
+         | ((mopcode) & 0x3f))
 
-#define MSA_SHLLQB_INSTRUCTION(opcode, source, dest, immediate) \
-                 (037 << 26 /* SPECIAL3 */ \
-                 | (immediate & 0xf) << 21 \
-                 | (source - ORC_GP_REG_BASE) << 16 \
-                 | (dest - ORC_GP_REG_BASE) << 11 \
-                 | (opcode & 0x1f) << 6 \
-                 | 023) /* SHLL.QB */
 
-static const char *
-orc_msa_reg_name (int reg)
+static const char * orc_msa_reg_name (int reg)
 {
   static const char *vec_regs[] = {
     "$w0", "$w1", "$w2", "$w3",
@@ -112,15 +113,13 @@ orc_msa_reg_name (int reg)
   return vec_regs[reg&0x1f];
 }
 
-static void
-orc_msa_emit (OrcCompiler *compiler, orc_uint32 insn)
+static void orc_msa_emit (OrcCompiler *compiler, orc_uint32 insn)
 {
   ORC_WRITE_UINT32_LE (compiler->codeptr, insn);
   compiler->codeptr+=4;
 }
 
-void
-orc_msa_emit_loadib (OrcCompiler *compiler, int reg, int value)
+void orc_msa_emit_loadib (OrcCompiler *compiler, int reg, int value)
 {
   orc_uint32 code;
 
@@ -130,8 +129,7 @@ orc_msa_emit_loadib (OrcCompiler *compiler, int reg, int value)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_loadiw (OrcCompiler *compiler, int reg, int value)
+void orc_msa_emit_loadiw (OrcCompiler *compiler, int reg, int value)
 {
   orc_uint32 code;
 
@@ -141,8 +139,7 @@ orc_msa_emit_loadiw (OrcCompiler *compiler, int reg, int value)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_loadil (OrcCompiler *compiler, int reg, int value)
+void orc_msa_emit_loadil (OrcCompiler *compiler, int reg, int value)
 {
   orc_uint32 code;
 
@@ -153,8 +150,7 @@ orc_msa_emit_loadil (OrcCompiler *compiler, int reg, int value)
 }
 
 
-void
-orc_msa_emit_loadiq (OrcCompiler *compiler, int reg, int value)
+void orc_msa_emit_loadiq (OrcCompiler *compiler, int reg, int value)
 {
   orc_uint32 code;
 
@@ -164,8 +160,7 @@ orc_msa_emit_loadiq (OrcCompiler *compiler, int reg, int value)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_loadpb (OrcCompiler *compiler, int dest, int param)
+void orc_msa_emit_loadpb (OrcCompiler *compiler, int dest, int param)
 {
   orc_uint32 code;
   int base = compiler->vars[param].ptr_register;
@@ -178,8 +173,7 @@ orc_msa_emit_loadpb (OrcCompiler *compiler, int dest, int param)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_loadpw (OrcCompiler *compiler, int dest, int param)
+void orc_msa_emit_loadpw (OrcCompiler *compiler, int dest, int param)
 {
   orc_uint32 code;
   int base = compiler->vars[param].ptr_register;
@@ -192,8 +186,7 @@ orc_msa_emit_loadpw (OrcCompiler *compiler, int dest, int param)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_loadpl (OrcCompiler *compiler, int dest, int param)
+void orc_msa_emit_loadpl (OrcCompiler *compiler, int dest, int param)
 {
   orc_uint32 code;
   int base = compiler->vars[param].ptr_register;
@@ -206,8 +199,7 @@ orc_msa_emit_loadpl (OrcCompiler *compiler, int dest, int param)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_loadpq (OrcCompiler *compiler, int dest, int src)
+void orc_msa_emit_loadpq (OrcCompiler *compiler, int dest, int src)
 {
   orc_uint32 code;
   int base = compiler->vars[src].ptr_register;
@@ -229,8 +221,7 @@ orc_msa_emit_loadpq (OrcCompiler *compiler, int dest, int src)
 #endif
 }
 
-void
-orc_msa_emit_loadb (OrcCompiler *compiler, int dest, int src, int offset)
+void orc_msa_emit_loadb (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
 
@@ -240,8 +231,7 @@ orc_msa_emit_loadb (OrcCompiler *compiler, int dest, int src, int offset)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_loadw (OrcCompiler *compiler, int dest, int src, int offset)
+void orc_msa_emit_loadw (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
 
@@ -251,8 +241,7 @@ orc_msa_emit_loadw (OrcCompiler *compiler, int dest, int src, int offset)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int src, int offset)
+void orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
 
@@ -262,8 +251,7 @@ orc_msa_emit_loadl (OrcCompiler *compiler, int dest, int src, int offset)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int src, int offset)
+void orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
 
@@ -273,8 +261,7 @@ orc_msa_emit_loadq (OrcCompiler *compiler, int dest, int src, int offset)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_storeb (OrcCompiler *compiler, int dest, int src, int offset)
+void orc_msa_emit_storeb (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
 
@@ -284,8 +271,7 @@ orc_msa_emit_storeb (OrcCompiler *compiler, int dest, int src, int offset)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_storew (OrcCompiler *compiler, int dest, int src, int offset)
+void orc_msa_emit_storew (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
 
@@ -295,8 +281,7 @@ orc_msa_emit_storew (OrcCompiler *compiler, int dest, int src, int offset)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_storel (OrcCompiler *compiler, int dest, int src, int offset)
+void orc_msa_emit_storel (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
 
@@ -306,8 +291,7 @@ orc_msa_emit_storel (OrcCompiler *compiler, int dest, int src, int offset)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_storeq (OrcCompiler *compiler, int dest, int src, int offset)
+void orc_msa_emit_storeq (OrcCompiler *compiler, int dest, int src, int offset)
 {
   orc_uint32 code;
 
@@ -317,8 +301,7 @@ orc_msa_emit_storeq (OrcCompiler *compiler, int dest, int src, int offset)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_adds_s_h (OrcCompiler *compiler, int dest, int src1, int src2)
+void orc_msa_emit_adds_s_h (OrcCompiler *compiler, int dest, int src1, int src2)
 {
   orc_uint32 code;
 
@@ -328,8 +311,7 @@ orc_msa_emit_adds_s_h (OrcCompiler *compiler, int dest, int src1, int src2)
   orc_msa_emit (compiler, code);
 }
 
-void
-orc_msa_emit_adds_u_h (OrcCompiler *compiler, int dest, int src1, int src2)
+void orc_msa_emit_adds_u_h (OrcCompiler *compiler, int dest, int src1, int src2)
 {
   orc_uint32 code;
 
@@ -338,6 +320,67 @@ orc_msa_emit_adds_u_h (OrcCompiler *compiler, int dest, int src1, int src2)
   code = MSA_3R_INSTRUCTION(3, DF_H, src2, src1, dest, 0x10);
   orc_msa_emit (compiler, code);
 }
+
+void orc_msa_emit_copy_u_b (OrcCompiler *compiler, int dest, int src1, int n)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  COPY_U.B %s,%s[%d]\n",  //COPY_U.B rd,ws[n]
+      orc_mips_reg_name (dest), orc_msa_reg_name (src1), n);
+  code = MSA_ELM_INSTRUCTION(3, n & 0xf, src1, dest+ORC_VEC_REG_BASE-ORC_GP_REG_BASE, 0x19);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_copy_u_h (OrcCompiler *compiler, int dest, int src1, int n)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  COPY_U.H %s,%s[%d]\n",  //COPY_U.H rd,ws[n]
+      orc_mips_reg_name (dest), orc_msa_reg_name (src1), n);
+  code = MSA_ELM_INSTRUCTION(3, (0b100 << 3) | (n & 0x7), src1, dest+ORC_VEC_REG_BASE-ORC_GP_REG_BASE, 0x19);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_copy_u_w (OrcCompiler *compiler, int dest, int src1, int n)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  COPY_U.W %s,%s[%d]\n",  //COPY_U.W rd,ws[n]
+      orc_mips_reg_name (dest), orc_msa_reg_name (src1), n);
+  code = MSA_ELM_INSTRUCTION(3, (0b1100 << 2) | (n & 0x3), src1, dest+ORC_VEC_REG_BASE-ORC_GP_REG_BASE, 0x19);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_shf_b (OrcCompiler *compiler, int dest, int src1, int i8)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  SHF.B %s,%s,%d\n",  //SHF.B wd, ws, i8
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), i8);
+  code = MSA_I8_INSTRUCTION(DF_B, i8, src1, dest, 0x02);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_shf_h (OrcCompiler *compiler, int dest, int src1, int i8)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  SHF.H %s,%s,%d\n",  //SHF.H wd, ws, i8
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), i8);
+  code = MSA_I8_INSTRUCTION(DF_H, i8, src1, dest, 0x02);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_shf_w (OrcCompiler *compiler, int dest, int src1, int i8)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  SHF.W %s,%s,%d\n",  //SHF.W wd, ws, i8
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), i8);
+  code = MSA_I8_INSTRUCTION(DF_W, i8, src1, dest, 0x02);
+  orc_msa_emit (compiler, code);
+}
+
 
 #if 0
 void

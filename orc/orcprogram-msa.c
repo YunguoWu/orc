@@ -133,6 +133,8 @@ orc_compiler_msa_init (OrcCompiler *compiler)
   compiler->valid_regs[ORC_MIPS_T3] = 0;
   compiler->valid_regs[ORC_MIPS_T4] = 0;
   compiler->valid_regs[ORC_MIPS_T5] = 0;
+  compiler->valid_regs[ORC_MIPS_T6] = 0;
+  compiler->valid_regs[ORC_MIPS_T7] = 0;
   compiler->valid_regs[ORC_MIPS_K0] = 0; /* for kernel/interupts */
   compiler->valid_regs[ORC_MIPS_K1] = 0; /* for kernel/interupts */
   compiler->valid_regs[ORC_MIPS_GP] = 0; /* global pointer */
@@ -197,7 +199,7 @@ orc_compiler_msa_get_asm_preamble (void)
       ".abicalls\n" /* not exactly sure what this is, but linker complains
                        without it  */
       ".set noreorder\n"
-      "/* end Orc MIPS target preamble */\n\n";
+      "/* end Orc MSA target preamble */\n\n";
 }
 
 static int
@@ -536,6 +538,13 @@ orc_msa_emit_loop (OrcCompiler *compiler, int unroll, int loop_label)
         if (insn->flags & ORC_INSTRUCTION_FLAG_X4) {
           compiler->insn_shift += 2;
         }
+
+        if (loop_label == LABEL_REGION0_LOOP) {
+          rule->emit_user = (void *)(ORC_PTR_TO_INT (rule->emit_user) | (1<<31)); /*bit31 indicates the loop label*/
+        }
+        else {
+          rule->emit_user = (void *)(ORC_PTR_TO_INT (rule->emit_user) & (~(1<<31)));
+        }
         rule->emit (compiler, rule->emit_user, insn);
       } else {
         orc_compiler_append_code (compiler, "No rule for %s\n", opcode->name);
@@ -566,7 +575,7 @@ orc_msa_emit_loop (OrcCompiler *compiler, int unroll, int loop_label)
             orc_mips_emit_add (compiler,
                                var->ptr_register,
                                var->ptr_register,
-                               ORC_MIPS_T0);
+                               ORC_MIPS_T2);
             break;
           case LABEL_REGION2_LOOP:
             orc_mips_emit_add (compiler,

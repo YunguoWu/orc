@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "testmsaorc.h"
 
-#define N 201
+#define N 300
 
 short a[N];
 short b[N];
@@ -15,7 +15,7 @@ main (int argc, char *argv[])
   /* Create some data in the source arrays */
   for(i=0;i<N;i++){
     a[i] = -100*i;
-    b[i] = -22000;
+    b[i] = -10000;
   }
 
   /* Call a function that uses Orc */
@@ -30,8 +30,8 @@ main (int argc, char *argv[])
 
   /* Create some data in the source arrays */
   for(i=0;i<N;i++){
-    a[i] = 1000*i;
-    b[i] = 22000;
+    a[i] = i+100;
+    b[i] = 1;
   }
 
   /* Call a function that uses Orc */
