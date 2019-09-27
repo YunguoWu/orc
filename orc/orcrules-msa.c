@@ -225,6 +225,46 @@ msa_rule_storeX (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 }
 
 static void
+orc_msa_rule_addb (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_add_b (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_addssb (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_adds_s_b (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_addusb (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_adds_u_b (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_addw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_add_h (compiler, dest, src1, src2);
+}
+
+static void
 orc_msa_rule_addssw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 {
   int src1 = ORC_SRC_ARG (compiler, insn, 0);
@@ -242,6 +282,66 @@ orc_msa_rule_addusw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
   int dest = ORC_DEST_ARG (compiler, insn, 0);
 
   orc_msa_emit_adds_u_h (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_addl (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_add_w (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_addssl (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_adds_s_w (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_addusl (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_adds_u_w (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_addq (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_add_d (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_addf (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_add_f32 (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_addd (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_add_f64 (compiler, dest, src1, src2);
 }
 
 #if 0
@@ -773,8 +873,18 @@ orc_compiler_msa_register_rules (OrcTarget *target)
   orc_rule_register (rule_set, "storel", msa_rule_storeX, (void *)4);
   orc_rule_register (rule_set, "storeq", msa_rule_storeX, (void *)8);
 
+  orc_rule_register (rule_set, "addb", orc_msa_rule_addb, NULL);
+  orc_rule_register (rule_set, "addssb", orc_msa_rule_addssb, NULL);
+  orc_rule_register (rule_set, "addusb", orc_msa_rule_addusb, NULL);
+  orc_rule_register (rule_set, "addw", orc_msa_rule_addw, NULL);
   orc_rule_register (rule_set, "addssw", orc_msa_rule_addssw, NULL);
   orc_rule_register (rule_set, "addusw", orc_msa_rule_addusw, NULL);
+  orc_rule_register (rule_set, "addl", orc_msa_rule_addl, NULL);
+  orc_rule_register (rule_set, "addssl", orc_msa_rule_addssl, NULL);
+  orc_rule_register (rule_set, "addusl", orc_msa_rule_addusl, NULL);
+  orc_rule_register (rule_set, "addq", orc_msa_rule_addq, NULL);
+  orc_rule_register (rule_set, "addf", orc_msa_rule_addf, NULL);
+  orc_rule_register (rule_set, "addd", orc_msa_rule_addd, NULL);
 
 #if 0
   orc_rule_register (rule_set, "loadl", orc_msa_rule_load, (void *) 2);

@@ -93,6 +93,16 @@
          | ((wd)-ORC_VEC_REG_BASE) << 6 \
          | ((mopcode) & 0x3f))
 
+/*3RF instruction format: 011110 operation df wt ws wd minor_opcode*/
+#define MSA_3RF_INSTRUCTION(operation,df,wt,ws,wd,mopcode) \
+            (0b011110 << 26 \
+             | ((operation) & 0x0f) << 22 \
+             | (df) << 21 \
+             | ((wt)-ORC_VEC_REG_BASE) << 16 \
+             | ((ws)-ORC_VEC_REG_BASE) << 11 \
+             | ((wd)-ORC_VEC_REG_BASE) << 6 \
+             | ((mopcode) & 0x3f))
+
 
 static const char * orc_msa_reg_name (int reg)
 {
@@ -301,26 +311,6 @@ void orc_msa_emit_storeq (OrcCompiler *compiler, int dest, int src, int offset)
   orc_msa_emit (compiler, code);
 }
 
-void orc_msa_emit_adds_s_h (OrcCompiler *compiler, int dest, int src1, int src2)
-{
-  orc_uint32 code;
-
-  ORC_ASM_CODE(compiler,"  ADDS_S.H %s,%s,%s\n",  //ADDS_S.H wd,ws,wt
-      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
-  code = MSA_3R_INSTRUCTION(2, DF_H, src2, src1, dest, 0x10);
-  orc_msa_emit (compiler, code);
-}
-
-void orc_msa_emit_adds_u_h (OrcCompiler *compiler, int dest, int src1, int src2)
-{
-  orc_uint32 code;
-
-  ORC_ASM_CODE(compiler,"  ADDS_U.H %s,%s,%s\n",  //ADDS_U.H wd,ws,wt
-      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
-  code = MSA_3R_INSTRUCTION(3, DF_H, src2, src1, dest, 0x10);
-  orc_msa_emit (compiler, code);
-}
-
 void orc_msa_emit_copy_u_b (OrcCompiler *compiler, int dest, int src1, int n)
 {
   orc_uint32 code;
@@ -378,6 +368,126 @@ void orc_msa_emit_shf_w (OrcCompiler *compiler, int dest, int src1, int i8)
   ORC_ASM_CODE(compiler,"  SHF.W %s,%s,%d\n",  //SHF.W wd, ws, i8
       orc_msa_reg_name (dest), orc_msa_reg_name (src1), i8);
   code = MSA_I8_INSTRUCTION(DF_W, i8, src1, dest, 0x02);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_add_b (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ADDV.B %s,%s,%s\n",  //ADDV.B wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3R_INSTRUCTION(0, DF_B, src2, src1, dest, 0x0e);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_adds_s_b (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ADDS_S.B %s,%s,%s\n",  //ADDS_S.B wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3R_INSTRUCTION(2, DF_B, src2, src1, dest, 0x10);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_adds_u_b (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ADDS_U.B %s,%s,%s\n",  //ADDS_U.B wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3R_INSTRUCTION(3, DF_B, src2, src1, dest, 0x10);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_add_h (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ADDV.H %s,%s,%s\n",  //ADDV.H wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3R_INSTRUCTION(0, DF_H, src2, src1, dest, 0x0e);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_adds_s_h (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ADDS_S.H %s,%s,%s\n",  //ADDS_S.H wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3R_INSTRUCTION(2, DF_H, src2, src1, dest, 0x10);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_adds_u_h (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ADDS_U.H %s,%s,%s\n",  //ADDS_U.H wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3R_INSTRUCTION(3, DF_H, src2, src1, dest, 0x10);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_add_w (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ADDV.W %s,%s,%s\n",  //ADDV.W wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3R_INSTRUCTION(0, DF_W, src2, src1, dest, 0x0e);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_adds_s_w (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ADDS_S.W %s,%s,%s\n",  //ADDS_S.W wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3R_INSTRUCTION(2, DF_W, src2, src1, dest, 0x10);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_adds_u_w (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ADDS_U.W %s,%s,%s\n",  //ADDS_U.W wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3R_INSTRUCTION(3, DF_W, src2, src1, dest, 0x10);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_add_d (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ADDV.D %s,%s,%s\n",  //ADDV.D wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3R_INSTRUCTION(0, DF_D, src2, src1, dest, 0x0e);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_add_f32 (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  FADD.W %s,%s,%s\n",  //FADD.W wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3RF_INSTRUCTION(0, 0, src2, src1, dest, 0x1b);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_add_f64 (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  FADD.D %s,%s,%s\n",  //FADD.D wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_3RF_INSTRUCTION(0, 1, src2, src1, dest, 0x1b);
   orc_msa_emit (compiler, code);
 }
 

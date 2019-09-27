@@ -617,10 +617,8 @@ get_shift (int size)
       return 1;
     case 4:
       return 2;
-#if (__mips == 64)
     case 8:
       return 3;
-#endif
     default:
       ORC_ERROR("bad size %d", size);
   }

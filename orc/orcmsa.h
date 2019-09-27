@@ -106,10 +106,6 @@ ORC_API void orc_msa_emit_storel (OrcCompiler *compiler, int dest, int src, int 
 
 ORC_API void orc_msa_emit_storeq (OrcCompiler *compiler, int dest, int src, int offset);
 
-ORC_API void orc_msa_emit_adds_s_h (OrcCompiler *compiler, int dest, int src1, int src2);
-
-ORC_API void orc_msa_emit_adds_u_h (OrcCompiler *compiler, int dest, int src1, int src2);
-
 ORC_API void orc_msa_emit_copy_u_b (OrcCompiler *compiler, int dest, int src1, int n);
 
 ORC_API void orc_msa_emit_copy_u_h (OrcCompiler *compiler, int dest, int src1, int n);
@@ -121,6 +117,30 @@ ORC_API void orc_msa_emit_shf_b (OrcCompiler *compiler, int dest, int src1, int 
 ORC_API void orc_msa_emit_shf_h (OrcCompiler *compiler, int dest, int src1, int i8);
 
 ORC_API void orc_msa_emit_shf_w (OrcCompiler *compiler, int dest, int src1, int i8);
+
+ORC_API void orc_msa_emit_add_b (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_adds_s_b (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_adds_u_b (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_add_h (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_adds_s_h (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_adds_u_h (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_add_w (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_adds_s_w (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_adds_u_w (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_add_d (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_add_f32 (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_add_f64 (OrcCompiler *compiler, int dest, int src1, int src2);
 
 
 #endif /* ORC_ENABLE_UNSTABLE_API */
