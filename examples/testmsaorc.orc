@@ -107,3 +107,67 @@ addf d1, d1, s1
 .source 8 s1 double
 
 addd d1, d1, s1
+
+
+.function orc_andb
+.dest 1 d1
+.source 1 s1
+.source 1 s2
+
+andb d1, s1, s2
+
+
+.function orc_andnb
+.dest 1 d1
+.source 1 s1
+.source 1 s2
+
+andnb d1, s1, s2
+
+
+.function orc_andw
+.dest 2 d1
+.source 2 s1
+.source 2 s2
+
+andw d1, s1, s2
+
+
+.function orc_andnw
+.dest 2 d1
+.source 2 s1
+.source 2 s2
+
+andnw d1, s1, s2
+
+
+.function orc_andl
+.dest 4 d1
+.source 4 s1
+.source 4 s2
+
+andl d1, s1, s2
+
+
+.function orc_andnl
+.dest 4 d1
+.source 4 s1
+.source 4 s2
+
+andnl d1, s1, s2
+
+
+.function orc_andq
+.dest 8 d1
+.source 8 s1
+.source 8 s2
+
+andq d1, s1, s2
+
+
+.function orc_andnq
+.dest 8 d1
+.source 8 s1
+.source 8 s2
+
+andnq d1, s1, s2

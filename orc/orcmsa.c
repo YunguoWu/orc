@@ -103,6 +103,14 @@
              | ((wd)-ORC_VEC_REG_BASE) << 6 \
              | ((mopcode) & 0x3f))
 
+/*VEC instruction format: 011110 00000 wt ws wd minor_opcode*/
+#define MSA_VEC_INSTRUCTION(operation,wt,ws,wd,mopcode) \
+            (0b011110 << 26 \
+             | ((operation) & 0x1f) << 21 \
+             | ((wt)-ORC_VEC_REG_BASE) << 16 \
+             | ((ws)-ORC_VEC_REG_BASE) << 11 \
+             | ((wd)-ORC_VEC_REG_BASE) << 6 \
+             | ((mopcode) & 0x3f))
 
 static const char * orc_msa_reg_name (int reg)
 {
@@ -488,6 +496,31 @@ void orc_msa_emit_add_f64 (OrcCompiler *compiler, int dest, int src1, int src2)
   ORC_ASM_CODE(compiler,"  FADD.D %s,%s,%s\n",  //FADD.D wd,ws,wt
       orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
   code = MSA_3RF_INSTRUCTION(0, 1, src2, src1, dest, 0x1b);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_andv (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  ANDV.V %s,%s,%s\n",  //andv wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_VEC_INSTRUCTION(0, src2, src1, dest, 0x1e);
+  orc_msa_emit (compiler, code);
+}
+
+void orc_msa_emit_andvn (OrcCompiler *compiler, int dest, int src1, int src2)
+{
+  orc_uint32 code;
+
+  ORC_ASM_CODE(compiler,"  XORI.B %s,%s,%d\n",  //XORI.B wd,ws,wt
+      orc_msa_reg_name (src2), orc_msa_reg_name (src2), 0xff);
+  code = MSA_I8_INSTRUCTION(0x03, 0xff, src2, src2, 0x00);
+  orc_msa_emit (compiler, code);
+
+  ORC_ASM_CODE(compiler,"  ANDV.V %s,%s,%s\n",  //andv wd,ws,wt
+      orc_msa_reg_name (dest), orc_msa_reg_name (src1), orc_msa_reg_name (src2));
+  code = MSA_VEC_INSTRUCTION(0, src2, src1, dest, 0x1e);
   orc_msa_emit (compiler, code);
 }
 

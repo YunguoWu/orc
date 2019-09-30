@@ -154,7 +154,7 @@ void tst7_addl (int n)
 
   /* Create some data in the source arrays */
   for(i=0;i<n;i++){
-    a32[i] = -100*i;
+    a32[i] = -12121212*i;
     b32[i] = -10000;
   }
 
@@ -270,6 +270,167 @@ void tst12_addd (int n)
   }
 }
 
+void tst13_andb (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a8[i] = 0xaa - i;
+    b8[i] = 0x55;
+  }
+
+  /* Call a function that uses Orc */
+  orc_andb (c8, a8, b8, n);
+
+  /* Print the results */
+  printf("\ntesting tst13_andb....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %02x %02x -> %02x (%02x)\n", i, a8[i], b8[i], c8[i], a8[i]&b8[i]);
+  }
+}
+
+void tst14_andnb (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a8[i] = 0xaa - i;
+    b8[i] = 0x55;
+  }
+
+  /* Call a function that uses Orc */
+  orc_andnb (c8, a8, b8, n);
+
+  /* Print the results */
+  printf("\ntesting tst14_andnb....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %02x %02x -> %02x (%02x)\n", i, a8[i], b8[i], c8[i], a8[i] & (~b8[i]));
+  }
+}
+
+void tst15_andw (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a16[i] = 0xaaaa - i;
+    b16[i] = 0x5555;
+  }
+
+  /* Call a function that uses Orc */
+  orc_andw (c16, a16, b16, n);
+
+  /* Print the results */
+  printf("\ntesting tst15_andw....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %04x %04x -> %04x (%04x)\n", i, a16[i], b16[i], c16[i], a16[i]&b16[i]);
+  }
+}
+
+void tst16_andnw (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a16[i] = 0xaaaa - i;
+    b16[i] = 0x5555;
+  }
+
+  /* Call a function that uses Orc */
+  orc_andnw ((unsigned short *)&c16[0], (unsigned short *)&a16[0], (unsigned short *)&b16[0], n);
+
+  /* Print the results */
+  printf("\ntesting tst16_andnw....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %04x %04x -> %04x (%04x)\n", i, a16[i], b16[i], c16[i], a16[i]&(~b16[i]));
+  }
+}
+
+void tst17_andl (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a32[i] = 0xaaaaaaaa - i;
+    b32[i] = 0x55555555;
+  }
+
+  /* Call a function that uses Orc */
+  orc_addl (c32, a32, b32, n);
+
+  /* Print the results */
+  printf("\ntesting tst17_andl....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %08x %08x -> %08x (%08x)\n", i, a32[i], b32[i], c32[i], a32[i]&b32[i]);
+  }
+}
+
+void tst18_andnl (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a32[i] = 0xaaaaaaaa - i;
+    b32[i] = 0x55555555;
+  }
+
+  /* Call a function that uses Orc */
+  orc_andnl (c32, a32, b32, n);
+
+  /* Print the results */
+  printf("\ntesting tst18_andnl....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %08x %08x -> %08x (%08x)\n", i, a32[i], b32[i], c32[i], a32[i]&(~b32[i]));
+  }
+}
+
+void tst19_andq (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a64[i] = 0xaaaaaaaaaaaaaaaa - i;
+    b64[i] = 0x5555555555555555;
+  }
+
+  /* Call a function that uses Orc */
+  orc_addq (c64, a64, b64, n);
+
+  /* Print the results */
+  printf("\ntesting tst19_andq....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %016llx %016llx -> %016llx (%016llx)\n", i, a64[i], b64[i], c64[i], a64[i]&b64[i]);
+  }
+}
+
+void tst20_andnq (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a64[i] = 0xaaaaaaaaaaaaaaaa - i;
+    b64[i] = 0x5555555555555555;
+  }
+
+  /* Call a function that uses Orc */
+  orc_andnq (c64, a64, b64, n);
+
+  /* Print the results */
+  printf("\ntesting tst20_andnq....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %016llx %016llx -> %016llx (%016llx)\n", i, a64[i], b64[i], c64[i], a64[i]& (~b64[i]));
+  }
+}
+
+
 int
 main (int argc, char *argv[])
 {
@@ -325,6 +486,30 @@ main (int argc, char *argv[])
       if (0 != tst_id) break;
     case 12:
       tst12_addd(data_len);
+      if (0 != tst_id) break;
+    case 13:
+      tst13_andb(data_len);
+      if (0 != tst_id) break;
+    case 14:
+      tst14_andnb(data_len);
+      if (0 != tst_id) break;
+    case 15:
+      tst15_andw(data_len);
+      if (0 != tst_id) break;
+    case 16:
+      tst16_andnw(data_len);
+      if (0 != tst_id) break;
+    case 17:
+      tst17_andl(data_len);
+      if (0 != tst_id) break;
+    case 18:
+      tst18_andnl(data_len);
+      if (0 != tst_id) break;
+    case 19:
+      tst19_andq(data_len);
+      if (0 != tst_id) break;
+    case 20:
+      tst20_andnq(data_len);
       if (0 != tst_id) break;
     default:
       if (0 != tst_id)

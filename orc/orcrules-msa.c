@@ -344,6 +344,26 @@ orc_msa_rule_addd (OrcCompiler *compiler, void *user, OrcInstruction *insn)
   orc_msa_emit_add_f64 (compiler, dest, src1, src2);
 }
 
+static void
+orc_msa_rule_and (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_andv (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_andn (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_andvn (compiler, dest, src1, src2);
+}
+
 #if 0
 void
 orc_msa_rule_addl (OrcCompiler *compiler, void *user, OrcInstruction *insn)
@@ -885,6 +905,16 @@ orc_compiler_msa_register_rules (OrcTarget *target)
   orc_rule_register (rule_set, "addq", orc_msa_rule_addq, NULL);
   orc_rule_register (rule_set, "addf", orc_msa_rule_addf, NULL);
   orc_rule_register (rule_set, "addd", orc_msa_rule_addd, NULL);
+
+  orc_rule_register (rule_set, "andb", orc_msa_rule_and, NULL);
+  orc_rule_register (rule_set, "andnb", orc_msa_rule_andn, NULL);
+  orc_rule_register (rule_set, "andw", orc_msa_rule_and, NULL);
+  orc_rule_register (rule_set, "andnw", orc_msa_rule_andn, NULL);
+  orc_rule_register (rule_set, "andl", orc_msa_rule_and, NULL);
+  orc_rule_register (rule_set, "andnl", orc_msa_rule_andn, NULL);
+  orc_rule_register (rule_set, "andq", orc_msa_rule_and, NULL);
+  orc_rule_register (rule_set, "andnq", orc_msa_rule_andn, NULL);
+
 
 #if 0
   orc_rule_register (rule_set, "loadl", orc_msa_rule_load, (void *) 2);
