@@ -361,7 +361,7 @@ void tst17_andl (int n)
   }
 
   /* Call a function that uses Orc */
-  orc_addl (c32, a32, b32, n);
+  orc_andl (c32, a32, b32, n);
 
   /* Print the results */
   printf("\ntesting tst17_andl....\n");
@@ -401,7 +401,7 @@ void tst19_andq (int n)
   }
 
   /* Call a function that uses Orc */
-  orc_addq (c64, a64, b64, n);
+  orc_andq (c64, a64, b64, n);
 
   /* Print the results */
   printf("\ntesting tst19_andq....\n");
