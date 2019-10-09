@@ -345,6 +345,126 @@ orc_msa_rule_addd (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 }
 
 static void
+orc_msa_rule_subb (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_sub_b (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subssb (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_subs_s_b (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subusb (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_subs_u_b (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_sub_h (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subssw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_subs_s_h (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subusw (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_subs_u_h (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subl (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_sub_w (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subssl (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_subs_s_w (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subusl (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_subs_u_w (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subq (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_sub_d (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subf (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_sub_f32 (compiler, dest, src1, src2);
+}
+
+static void
+orc_msa_rule_subd (OrcCompiler *compiler, void *user, OrcInstruction *insn)
+{
+  int src1 = ORC_SRC_ARG (compiler, insn, 0);
+  int src2 = ORC_SRC_ARG (compiler, insn, 1);
+  int dest = ORC_DEST_ARG (compiler, insn, 0);
+
+  orc_msa_emit_sub_f64 (compiler, dest, src1, src2);
+}
+
+static void
 orc_msa_rule_and (OrcCompiler *compiler, void *user, OrcInstruction *insn)
 {
   int src1 = ORC_SRC_ARG (compiler, insn, 0);
@@ -905,6 +1025,19 @@ orc_compiler_msa_register_rules (OrcTarget *target)
   orc_rule_register (rule_set, "addq", orc_msa_rule_addq, NULL);
   orc_rule_register (rule_set, "addf", orc_msa_rule_addf, NULL);
   orc_rule_register (rule_set, "addd", orc_msa_rule_addd, NULL);
+
+  orc_rule_register (rule_set, "subb", orc_msa_rule_subb, NULL);
+  orc_rule_register (rule_set, "subssb", orc_msa_rule_subssb, NULL);
+  orc_rule_register (rule_set, "subusb", orc_msa_rule_subusb, NULL);
+  orc_rule_register (rule_set, "subw", orc_msa_rule_subw, NULL);
+  orc_rule_register (rule_set, "subssw", orc_msa_rule_subssw, NULL);
+  orc_rule_register (rule_set, "subusw", orc_msa_rule_subusw, NULL);
+  orc_rule_register (rule_set, "subl", orc_msa_rule_subl, NULL);
+  orc_rule_register (rule_set, "subssl", orc_msa_rule_subssl, NULL);
+  orc_rule_register (rule_set, "subusl", orc_msa_rule_subusl, NULL);
+  orc_rule_register (rule_set, "subq", orc_msa_rule_subq, NULL);
+  orc_rule_register (rule_set, "subf", orc_msa_rule_subf, NULL);
+  orc_rule_register (rule_set, "subd", orc_msa_rule_subd, NULL);
 
   orc_rule_register (rule_set, "andb", orc_msa_rule_and, NULL);
   orc_rule_register (rule_set, "andnb", orc_msa_rule_andn, NULL);

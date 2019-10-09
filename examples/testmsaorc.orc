@@ -108,6 +108,99 @@ addf d1, d1, s1
 
 addd d1, d1, s1
 
+.function orc_subb
+.dest 1 d1
+.source 1 s1
+.source 1 s2
+
+subb d1, s1, s2
+
+
+.function orc_subssb
+.dest 1 d1
+.source 1 s1
+.source 1 s2
+
+subssb d1, s1, s2
+
+
+.function orc_subusb
+.dest 1 d1
+.source 1 s1
+.source 1 s2
+
+subusb d1, s1, s2
+
+
+.function orc_subw
+.dest 2 d1
+.source 2 s1
+.source 2 s2
+
+subw d1, s1, s2
+
+
+.function orc_subssw
+.dest 2 d1
+.source 2 s1
+.source 2 s2
+
+subssw d1, s1, s2
+
+
+.function orc_subusw
+.dest 2 d1
+.source 2 s1
+.source 2 s2
+
+subusw d1, s1, s2
+
+
+.function orc_subl
+.dest 4 d1
+.source 4 s1
+.source 4 s2
+
+subl d1, s1, s2
+
+
+.function orc_subssl
+.dest 4 d1
+.source 4 s1
+.source 4 s2
+
+subssl d1, s1, s2
+
+
+.function orc_subusl
+.dest 4 d1
+.source 4 s1
+.source 4 s2
+
+subusl d1, s1, s2
+
+
+.function orc_subq
+.dest 8 d1
+.source 8 s1
+.source 8 s2
+
+subq d1, s1, s2
+
+
+.function orc_sub_f32
+.dest 4 d1 float
+.source 4 s1 float
+
+subf d1, d1, s1
+
+
+.function orc_sub_f64
+.dest 8 d1 double
+.source 8 s1 double
+
+subd d1, d1, s1
+
 
 .function orc_andb
 .dest 1 d1

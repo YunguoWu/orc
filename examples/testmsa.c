@@ -2,6 +2,40 @@
 #include <stdio.h>
 #include "testmsaorc.h"
 
+/* quote from Orc C target preamble for accuracy check*/
+#define ORC_CLAMP(x,a,b) ((x)<(a) ? (a) : ((x)>(b) ? (b) : (x)))
+#define ORC_ABS(a) ((a)<0 ? -(a) : (a))
+#define ORC_MIN(a,b) ((a)<(b) ? (a) : (b))
+#define ORC_MAX(a,b) ((a)>(b) ? (a) : (b))
+#define ORC_SB_MAX 127
+#define ORC_SB_MIN (-1-ORC_SB_MAX)
+#define ORC_UB_MAX (orc_uint8) 255
+#define ORC_UB_MIN 0
+#define ORC_SW_MAX 32767
+#define ORC_SW_MIN (-1-ORC_SW_MAX)
+#define ORC_UW_MAX (orc_uint16)65535
+#define ORC_UW_MIN 0
+#define ORC_SL_MAX 2147483647
+#define ORC_SL_MIN (-1-ORC_SL_MAX)
+#define ORC_UL_MAX 4294967295U
+#define ORC_UL_MIN 0
+#define ORC_CLAMP_SB(x) ORC_CLAMP(x,ORC_SB_MIN,ORC_SB_MAX)
+#define ORC_CLAMP_UB(x) ORC_CLAMP(x,ORC_UB_MIN,ORC_UB_MAX)
+#define ORC_CLAMP_SW(x) ORC_CLAMP(x,ORC_SW_MIN,ORC_SW_MAX)
+#define ORC_CLAMP_UW(x) ORC_CLAMP(x,ORC_UW_MIN,ORC_UW_MAX)
+#define ORC_CLAMP_SL(x) ORC_CLAMP(x,ORC_SL_MIN,ORC_SL_MAX)
+#define ORC_CLAMP_UL(x) ORC_CLAMP(x,ORC_UL_MIN,ORC_UL_MAX)
+#define ORC_SWAP_W(x) ((((x)&0xffU)<<8) | (((x)&0xff00U)>>8))
+#define ORC_SWAP_L(x) ((((x)&0xffU)<<24) | (((x)&0xff00U)<<8) | (((x)&0xff0000U)>>8) | (((x)&0xff000000U)>>24))
+#define ORC_SWAP_Q(x) ((((x)&ORC_UINT64_C(0xff))<<56) | (((x)&ORC_UINT64_C(0xff00))<<40) | (((x)&ORC_UINT64_C(0xff0000))<<24) | (((x)&ORC_UINT64_C(0xff000000))<<8) | (((x)&ORC_UINT64_C(0xff00000000))>>8) | (((x)&ORC_UINT64_C(0xff0000000000))>>24) | (((x)&ORC_UINT64_C(0xff000000000000))>>40) | (((x)&ORC_UINT64_C(0xff00000000000000))>>56))
+#define ORC_PTR_OFFSET(ptr,offset) ((void *)(((unsigned char *)(ptr)) + (offset)))
+#define ORC_DENORMAL(x) ((x) & ((((x)&0x7f800000) == 0) ? 0xff800000 : 0xffffffff))
+#define ORC_ISNAN(x) ((((x)&0x7f800000) == 0x7f800000) && (((x)&0x007fffff) != 0))
+#define ORC_DENORMAL_DOUBLE(x) ((x) & ((((x)&ORC_UINT64_C(0x7ff0000000000000)) == 0) ? ORC_UINT64_C(0xfff0000000000000) : ORC_UINT64_C(0xffffffffffffffff)))
+#define ORC_ISNAN_DOUBLE(x) ((((x)&ORC_UINT64_C(0x7ff0000000000000)) == ORC_UINT64_C(0x7ff0000000000000)) && (((x)&ORC_UINT64_C(0x000fffffffffffff)) != 0))
+/* quote end */
+
+
 #define N 1000
 
 unsigned char a8[N];
@@ -44,7 +78,7 @@ void tst1_add_ss16 (int n)
   /* Print the results */
   printf("\ntesting tst1_add_ss16....\n");
   for(i=0;i<n;i++){
-    printf("%d: %hd %hd -> %hd\n", i, a16[i], b16[i], c16[i]);
+    printf("%d: %hd %hd -> %hd (%hd)\n", i, a16[i], b16[i], c16[i], ORC_CLAMP_SW((short)a16[i]+(short)b16[i]));
   }
 }
 
@@ -64,7 +98,7 @@ void tst2_add_us16 (int n)
   /* Print the results */
   printf("\ntesting tst2_add_us16....\n");
   for(i=0;i<n;i++){
-    printf("%d: %hu %hu -> %hu\n", i, a16[i], b16[i], c16[i]);
+    printf("%d: %hu %hu -> %hu (%hu)\n", i, a16[i], b16[i], c16[i], ORC_CLAMP_UW(a16[i]+b16[i]));
   }
 }
 
@@ -84,7 +118,7 @@ void tst3_addb (int n)
   /* Print the results */
   printf("\ntesting tst3_addb....\n");
   for(i=0;i<n;i++){
-    printf("%d: %hhd %hhd -> %hhd\n", i, a8[i], b8[i], c8[i]);
+    printf("%d: %hhd %hhd -> %hhd (%hhd)\n", i, a8[i], b8[i], c8[i], a8[i]+b8[i]);
   }
 }
 
@@ -104,7 +138,7 @@ void tst4_addssb (int n)
   /* Print the results */
   printf("\ntesting tst4_addssb....\n");
   for(i=0;i<n;i++){
-    printf("%d: %hhd %hhd -> %hhd\n", i, a8[i], b8[i], c8[i]);
+    printf("%d: %hhd %hhd -> %hhd (%hhd)\n", i, a8[i], b8[i], c8[i], ORC_CLAMP_SB((char)a8[i]+(char)b8[i]));
   }
 }
 
@@ -124,7 +158,7 @@ void tst5_addusb (int n)
   /* Print the results */
   printf("\ntesting tst5_addusb....\n");
   for(i=0;i<n;i++){
-    printf("%d: %hhu %hhu -> %hhu\n", i, a8[i], b8[i], c8[i]);
+    printf("%d: %hhu %hhu -> %hhd (%hhd)\n", i, a8[i], b8[i], c8[i], ORC_CLAMP_UB(a8[i]+b8[i]));
   }
 }
 
@@ -164,7 +198,7 @@ void tst7_addl (int n)
   /* Print the results */
   printf("\ntesting tst7_addl....\n");
   for(i=0;i<n;i++){
-    printf("%d: %d %d -> %d\n", i, a32[i], b32[i], c32[i]);
+    printf("%d: %d %d -> %d (%d)\n", i, a32[i], b32[i], c32[i], b32[i]+c32[i]);
   }
 }
 
@@ -184,7 +218,7 @@ void tst8_addssl (int n)
   /* Print the results */
   printf("\ntesting tst8_addssl....\n");
   for(i=0;i<n;i++){
-    printf("%d: %d %d -> %d\n", i, a32[i], b32[i], c32[i]);
+    printf("%d: %d %d -> %d (%d)\n", i, a32[i], b32[i], c32[i], (int)ORC_CLAMP_SL((long long)a32[i]+(long long)b32[i]));
   }
 }
 
@@ -204,7 +238,7 @@ void tst9_addusl (int n)
   /* Print the results */
   printf("\ntesting tst9_addusl....\n");
   for(i=0;i<n;i++){
-    printf("%d: %u %u -> %u\n", i, a32[i], b32[i], c32[i]);
+    printf("%d: %u %u -> %u (%u)\n", i, a32[i], b32[i], c32[i], (unsigned int)ORC_CLAMP_UL((long long)a32[i]+(long long)b32[i]));
   }
 }
 
@@ -266,7 +300,7 @@ void tst12_addd (int n)
   /* Print the results */
   printf("\ntesting tst12_addd....\n");
   for(i=0;i<n;i++){
-    printf("%d: %f %f -> %f (%f)\n", i, af64[i], bf64[i], cf64[i], af64[i]+b64[i]);
+    printf("%d: %f %f -> %f (%f)\n", i, af64[i], bf64[i], cf64[i], af64[i]+bf64[i]);
   }
 }
 
@@ -430,6 +464,247 @@ void tst20_andnq (int n)
   }
 }
 
+void tst21_subb (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a8[i] = -i*10;
+    b8[i] = -100;
+  }
+
+  /* Call a function that uses Orc */
+  orc_subb (c8, a8, b8, n);
+
+  /* Print the results */
+  printf("\ntesting tst3_subb....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %hhd %hhd -> %hhd (%hhd)\n", i, a8[i], b8[i], c8[i], a8[i]-b8[i]);
+  }
+}
+
+void tst22_subssb (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a8[i] = -i;
+    b8[i] = -120;
+  }
+
+  /* Call a function that uses Orc */
+  orc_subssb (c8, a8, b8, n);
+
+  /* Print the results */
+  printf("\ntesting tst4_subssb....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %hhd %hhd -> %hhd (%hhd)\n", i, a8[i], b8[i], c8[i], ORC_CLAMP_SB((char)a8[i]-(char)b8[i]));
+  }
+}
+
+void tst23_subusb (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a8[i] = i;
+    b8[i] = 250;
+  }
+
+  /* Call a function that uses Orc */
+  orc_subusb (c8, a8, b8, n);
+
+  /* Print the results */
+  printf("\ntesting tst5_subusb....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %hhu %hhu -> %hhd (%hhd)\n", i, a8[i], b8[i], c8[i], ORC_CLAMP_UB(a8[i]-b8[i]));
+  }
+}
+
+void tst24_sub_16 (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a16[i] = -100*i;
+    b16[i] = ORC_UW_MAX-500;
+  }
+
+  /* Call a function that uses Orc */
+  orc_subw ((unsigned short *)&c16[0], (unsigned short *)&a16[0], (unsigned short *)&b16[0], n);
+
+  /* Print the results */
+  printf("\ntesting tst24_sub_16....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %hd %hd -> %hd (%hd)\n", i, a16[i], b16[i], c16[i], a16[i]-b16[i]);
+  }
+}
+
+void tst25_sub_ss16 (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a16[i] = -100*i;
+    b16[i] = ORC_SW_MAX-500;
+  }
+
+  /* Call a function that uses Orc */
+  orc_subssw ((unsigned short *)c16, (unsigned short *)a16, (unsigned short *)b16, n);
+
+  /* Print the results */
+  printf("\ntesting tst25_sub_ss16....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %hd %hd -> %hd (%hd)\n", i, a16[i], b16[i], c16[i], ORC_CLAMP_SW((short)a16[i]-(short)b16[i]));
+  }
+}
+
+void tst26_sub_us16 (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a16[i] = i*1000;
+    b16[i] = i;
+  }
+
+  /* Call a function that uses Orc */
+  orc_subusw ((unsigned short *)c16, (unsigned short *)a16, (unsigned short *)b16, n);
+
+  /* Print the results */
+  printf("\ntesting tst26_sub_us16....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %hu %hu -> %hu (%hu)\n", i, a16[i], b16[i], c16[i], ORC_CLAMP_UW(a16[i]-b16[i]));
+  }
+}
+
+void tst27_subl (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a32[i] = -12121212*i;
+    b32[i] = -10000;
+  }
+
+  /* Call a function that uses Orc */
+  orc_subl (c32, a32, b32, n);
+
+  /* Print the results */
+  printf("\ntesting tst27_subl....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %d %d -> %d (%d)\n", i, a32[i], b32[i], c32[i], b32[i]-c32[i]);
+  }
+}
+
+void tst28_subssl (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a32[i] = i+100;
+    b32[i] = ORC_SL_MAX-500;
+  }
+
+  /* Call a function that uses Orc */
+  orc_subssl (c32, a32, b32, n);
+
+  /* Print the results */
+  printf("\ntesting tst28_subssl....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %d %d -> %d (%d)\n", i, a32[i], b32[i], c32[i], (int)ORC_CLAMP_SL((long long)a32[i]-(long long)b32[i]));
+  }
+}
+
+void tst29_subusl (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a32[i] = i+100;
+    b32[i] = ORC_UL_MAX-500;
+  }
+
+  /* Call a function that uses Orc */
+  orc_subusl (c32, a32, b32, n);
+
+  /* Print the results */
+  printf("\ntesting tst29_subusl....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %u %u -> %u (%u)\n", i, a32[i], b32[i], c32[i], (unsigned int)ORC_CLAMP_UL((long long)a32[i]-(long long)b32[i]));
+  }
+}
+
+void tst30_subq (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    a64[i] = -2147483648*i;
+    b64[i] = -10000;
+  }
+
+  /* Call a function that uses Orc */
+  orc_subq (c64, a64, b64, n);
+
+  /* Print the results */
+  printf("\ntesting tst30_subq....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %lld %lld -> %lld (%lld)\n", i, a64[i], b64[i], c64[i], a64[i]-b64[i]);
+  }
+}
+
+void tst31_subf (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    af32[i] = -100.0001*i;
+    cf32[i] = af32[i];
+    bf32[i] = -10000.1;
+  }
+
+  /* Call a function that uses Orc */
+  orc_sub_f32 (cf32, bf32, n);
+
+  /* Print the results */
+  printf("\ntesting tst31_subf....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %f %f -> %f (%f)\n", i, af32[i], bf32[i], cf32[i], af32[i]-bf32[i]);
+  }
+}
+
+void tst32_subd (int n)
+{
+  int i;
+
+  /* Create some data in the source arrays */
+  for(i=0;i<n;i++){
+    af64[i] = -100.0000001*i;
+    cf64[i] = af64[i];
+    bf64[i] = -10000;
+  }
+
+  /* Call a function that uses Orc */
+  orc_sub_f64 (cf64, bf64, n);
+
+  /* Print the results */
+  printf("\ntesting tst32_subd....\n");
+  for(i=0;i<n;i++){
+    printf("%d: %f %f -> %f (%f)\n", i, af64[i], bf64[i], cf64[i], af64[i]-bf64[i]);
+  }
+}
 
 int
 main (int argc, char *argv[])
@@ -510,6 +785,42 @@ main (int argc, char *argv[])
       if (0 != tst_id) break;
     case 20:
       tst20_andnq(data_len);
+      if (0 != tst_id) break;
+    case 21:
+      tst21_subb(data_len);
+      if (0 != tst_id) break;
+    case 22:
+      tst22_subssb(data_len);
+      if (0 != tst_id) break;
+    case 23:
+      tst23_subusb(data_len);
+      if (0 != tst_id) break;
+    case 24:
+      tst24_sub_16(data_len);
+      if (0 != tst_id) break;
+    case 25:
+      tst25_sub_ss16(data_len);
+      if (0 != tst_id) break;
+    case 26:
+      tst26_sub_us16(data_len);
+      if (0 != tst_id) break;
+    case 27:
+      tst27_subl(data_len);
+      if (0 != tst_id) break;
+    case 28:
+      tst28_subssl(data_len);
+      if (0 != tst_id) break;
+    case 29:
+      tst29_subusl(data_len);
+      if (0 != tst_id) break;
+    case 30:
+      tst30_subq(data_len);
+      if (0 != tst_id) break;
+    case 31:
+      tst31_subf(data_len);
+      if (0 != tst_id) break;
+    case 32:
+      tst32_subd(data_len);
       if (0 != tst_id) break;
     default:
       if (0 != tst_id)

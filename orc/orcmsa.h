@@ -142,6 +142,30 @@ ORC_API void orc_msa_emit_add_f32 (OrcCompiler *compiler, int dest, int src1, in
 
 ORC_API void orc_msa_emit_add_f64 (OrcCompiler *compiler, int dest, int src1, int src2);
 
+ORC_API void orc_msa_emit_sub_b (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_subs_s_b (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_subs_u_b (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_sub_h (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_subs_s_h (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_subs_u_h (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_sub_w (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_subs_s_w (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_subs_u_w (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_sub_d (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_sub_f32 (OrcCompiler *compiler, int dest, int src1, int src2);
+
+ORC_API void orc_msa_emit_sub_f64 (OrcCompiler *compiler, int dest, int src1, int src2);
+
 ORC_API void orc_msa_emit_andv (OrcCompiler *compiler, int dest, int src1, int src2);
 
 ORC_API void orc_msa_emit_andvn (OrcCompiler *compiler, int dest, int src1, int src2);
